@@ -12,7 +12,7 @@ Windows, macOS, and Linux are supported. The Linux version has some dependencies
 
 ----------------------------------------------------------------------------------------------------------------------------------
 
-# Linux Dependency Option 1: Install for GTK+ Dialogs
+# Linux Dependency Option 1: Install for GTK Dialogs
 
 On Debian-based Linux distributions, enter the following command into the terminal:
 
@@ -36,7 +36,7 @@ yum groupinstall "KDE (K Desktop Environment)"
 
 ----------------------------------------------------------------------------------------------------------------------------------
 
-# Support Development | Read the Documentation
+# GameMaker Studio 2 Example Project | Documentation
 
 Also available from the GameMaker Marketplace and itch.io:
 
