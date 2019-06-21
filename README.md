@@ -1,14 +1,14 @@
 ----------------------------------------------------------------------------------------------------------------------------------
 
-# Dialog Module -- The World's Simplest Way to Dialog
+# Dialog Module - The World's Simplest Way to Dialog
 
-A simple, easy-to-use, cross-platform, dialog API shared library, inspired by the GameMaker Language dialog functions.
+A simple, easy-to-use, cross-platform, dialog API, inspired by the GameMaker Language dialog functions. You may dynamically link your projects to the pre-built binaries, or simply include the proper platform-specific headers.
 
 ----------------------------------------------------------------------------------------------------------------------------------
 
 # Platforms Supported and Features Included (WYSIWYG)
 
-Windows, macOS, and Linux are supported. The Linux version has some dependencies that need to be installed. Includes Message Box with OK, OK/Cancel, Yes/No, Yes/No/Cancel, Retry/Cancel, Abort/Retry/Ignore, Input Box for strings and numbers, Password Box for strings and numbers, Open File, Multi-Select Files, Save File, Browse For Folder, and Color Picker.
+Windows, macOS, and Linux are supported. The Linux version has some dependencies that need to be installed. Includes Message Box with OK, OK/Cancel, Yes/No, Yes/No/Cancel, Retry/Cancel, Abort/Retry/Ignore, Input Box for strings and numbers, Password Box for strings and numbers, Open File, Multi-Select Files, Save File, Folder Browser, and Color Picker.
 
 ----------------------------------------------------------------------------------------------------------------------------------
 
@@ -28,7 +28,7 @@ yum install gtk3 zenity
 
 On Debian-based Linux distributions, enter the following command into the terminal:
 
-sudo apt-get install kdebase-bin
+sudo apt-get install kde-baseapps-bin
 
 On RedHat-based Linux distributions, enter the following command into the terminal:
 
@@ -38,11 +38,9 @@ yum groupinstall "KDE (K Desktop Environment)"
 
 # Support Development | Read the Documentation
 
-Donations can be made by purchasing this as a game asset from the GameMaker Marketplace:
+Also available from the GameMaker Marketplace and itch.io:
 
 https://marketplace.yoyogames.com/assets/6621/dialog-module
-
-You may also donate and purchase this game asset on the itch.io game asset store:
 
 https://samuel-venable.itch.io/dialog-module
 
