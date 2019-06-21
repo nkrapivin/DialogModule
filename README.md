@@ -36,7 +36,7 @@ yum groupinstall "KDE (K Desktop Environment)"
 
 ----------------------------------------------------------------------------------------------------------------------------------
 
-# GameMaker Studio 2 Example Project | Documentation
+# GameMaker Studio 2 Extension | Documentation
 
 Also available from the GameMaker Marketplace and itch.io:
 
