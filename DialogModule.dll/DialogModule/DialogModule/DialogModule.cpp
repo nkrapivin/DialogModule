@@ -1,8 +1,8 @@
-/******************************************************************************
+﻿/******************************************************************************
 
  MIT License
 
- Copyright � 2019 Samuel Venable
+ Copyright © 2019 Samuel Venable
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated documentation files (the "Software"), to deal
@@ -234,7 +234,7 @@ static LRESULT CALLBACK InputBoxProc(int nCode, WPARAM wParam, LPARAM lParam) {
   if (nCode == HCBT_ACTIVATE) {
     if (HideInput == true) {
       HWND TextBox = FindWindowEx((HWND)wParam, NULL, "Edit", NULL);
-      SendDlgItemMessage((HWND)wParam, GetDlgCtrlID(TextBox), EM_SETPASSWORDCHAR, '*', 0);
+      SendDlgItemMessageW((HWND)wParam, GetDlgCtrlID(TextBox), EM_SETPASSWORDCHAR, L'●', 0);
     }
   }
 
