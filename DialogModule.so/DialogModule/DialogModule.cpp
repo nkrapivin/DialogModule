@@ -202,7 +202,7 @@ static double show_message_helperfunc(char *str) {
   string str_echo = "echo 1";
 
   if (message_cancel)
-    str_echo = "if [ $? = 0 ] ;then echo 1;fi";
+    str_echo = "if [ $? = 0 ] ;then echo 1;else echo -1;fi";
 
   if (dm_dialogengine == dm_zenity) {
     str_title = add_escaping(dialog_caption, true, " ");
