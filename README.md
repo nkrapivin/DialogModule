@@ -28,7 +28,7 @@ yum install gtk3 zenity
 
 On Debian-based Linux distributions, enter the following command into the terminal:
 
-sudo apt-get install kde-baseapps-bin
+sudo apt-get install keditbookmarks kdialog
 
 On RedHat-based Linux distributions, enter the following command into the terminal:
 
