@@ -330,7 +330,7 @@ double show_error(char *str, double abort) {
 
   if (dm_dialogengine == dm_zenity) {
     str_echo = abort ? "echo 1" :
-      "if [ $ans = \"Abort\" ] ;then echo 1;elif [ $ans = \"Ignore\" ] ;then echo -1;elif [ $ans = \"Retry\" ] ;then echo 0;fi";
+      "if [ $ans = \"Abort\" ] ;then echo 1;elif [ $ans = \"Retry\" ] ;then echo 0;else echo -1;fi";
 
     str_command = string("ans=$(zenity ") +
     string("--attach=$(sleep .01;xprop -root 32x '\t$0' _NET_ACTIVE_WINDOW | cut -f 2) ") +
