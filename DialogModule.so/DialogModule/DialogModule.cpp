@@ -205,16 +205,19 @@ static double show_message_helperfunc(char *str) {
     str_echo = "if [ $? = 0 ] ;then echo 1;else echo -1;fi";
 
   if (dm_dialogengine == dm_zenity) {
+    string str_icon = "\" --icon-name=dialog-information);";
     str_title = add_escaping(dialog_caption, true, " ");
     str_cancel = "--info --ok-label=OK ";
 
-    if (message_cancel)
+    if (message_cancel) {
+      str_icon = "\" --icon-name=dialog-question);";
       str_cancel = "--question --ok-label=OK --cancel-label=Cancel ";
+    }
 
     str_command = string("ans=$(zenity ") +
     string("--attach=$(sleep .01;xprop -root 32x '\t$0' _NET_ACTIVE_WINDOW | cut -f 2) ") +
     str_cancel + string("--title=\"") + str_title + string("\" --no-wrap --text=\"") +
-    add_escaping(str, false, "") + string("\" --icon-name=dialog-information);") + str_echo;
+    add_escaping(str, false, "") + str_icon + str_echo;
   }
   else if (dm_dialogengine == dm_kdialog) {
     str_title = add_escaping(dialog_caption, true, "KDialog");
@@ -299,10 +302,10 @@ double show_attempt(char *str) {
   if (dm_dialogengine == dm_zenity) {
     str_command = string("ans=$(zenity ") +
     string("--attach=$(sleep .01;xprop -root 32x '\t$0' _NET_ACTIVE_WINDOW | cut -f 2) ") +
-    string("--question --ok-label=Retry --cancel-label=Cancel ") +  string("--title=\"") +
+    string("--error --ok-label=Cancel --extra-button=Retry ") +  string("--title=\"") +
     add_escaping(error_caption, true, "Error") + string("\" --no-wrap --text=\"") +
     add_escaping(str, false, "") +
-    string("\" --icon-name=dialog-error);if [ $? = 0 ] ;then echo 0;else echo -1;fi");
+    string("\" --icon-name=dialog-error);if [ $? = 0 ] ;then echo -1;else echo 0;fi");
   }
   else if (dm_dialogengine == dm_kdialog) {
     str_command = string("kdialog ") +
@@ -327,11 +330,11 @@ double show_error(char *str, double abort) {
 
   if (dm_dialogengine == dm_zenity) {
     str_echo = abort ? "echo 1" :
-      "if [ $? = 0 ] ;then echo 1;elif [ $ans = \"Ignore\" ] ;then echo -1;elif [ $? = 2 ] ;then echo 0;fi";
+      "if [ $ans = \"Abort\" ] ;then echo 1;elif [ $ans = \"Ignore\" ] ;then echo -1;elif [ $ans = \"Retry\" ] ;then echo 0;fi";
 
     str_command = string("ans=$(zenity ") +
     string("--attach=$(sleep .01;xprop -root 32x '\t$0' _NET_ACTIVE_WINDOW | cut -f 2) ") +
-    string("--question --ok-label=Abort --cancel-label=Retry --extra-button=Ignore ") +
+    string("--error --ok-label=Ignore --extra-button=Retry --extra-button=Abort ") +
     string("--title=\"") + add_escaping(error_caption, true, "Error") + string("\" --no-wrap --text=\"") +
     add_escaping(str, false, "") + string("\" --icon-name=dialog-error);") + str_echo;
   }

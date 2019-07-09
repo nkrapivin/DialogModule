@@ -332,7 +332,7 @@ static double show_message_helperfunc(char *str) {
     wcsncpy_s(wstrWindowCaption, dialog_caption.c_str(), 512);
 
   if (message_cancel) {
-    int result = MessageBoxW(window_handle(), tstrStr.c_str(), wstrWindowCaption, MB_OKCANCEL | MB_ICONINFORMATION | MB_DEFBUTTON1 | MB_APPLMODAL);
+    int result = MessageBoxW(window_handle(), tstrStr.c_str(), wstrWindowCaption, MB_OKCANCEL | MB_ICONQUESTION | MB_DEFBUTTON1 | MB_APPLMODAL);
     if (result == IDOK) return 1; else return -1;
   }
 
