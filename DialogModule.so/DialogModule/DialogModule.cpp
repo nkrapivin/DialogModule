@@ -138,16 +138,17 @@ static std::vector<string> string_split(const string &str, char delimiter) {
 }
 
 static string zenity_filter(string input) {
-  std::replace(input.begin(), input.end(), ';', ' ');
   std::vector<string> stringVec = string_split(input, '|');
   string string_output = "";
 
   unsigned int index = 0;
-  for (const string &str : stringVec) {
+  for (string str : stringVec) {
     if (index % 2 == 0)
       string_output += " --file-filter='" + str + "|";
-    else
+    else {
+      std::replace(str.begin(), str.end(), ';', ' ');
       string_output += string_replace_all(str, "*.*", "*") + "'";
+    }
 
     index += 1;
   }
@@ -156,31 +157,27 @@ static string zenity_filter(string input) {
 }
 
 static string kdialog_filter(string input) {
-  std::replace(input.begin(), input.end(), ';', ' ');
   std::vector<string> stringVec = string_split(input, '|');
   string string_output = " '";
 
-  string even = "";
-  string odd = "";
-
   unsigned int index = 0;
-  for (const string &str : stringVec) {
-    if (index % 2 != 0) {
-      if (index == 1)
-        odd = str;
-      else
-        odd = "\n" + str;
-
-      string_output += string_replace_all(odd, "*.*", "*") + even;
+  for (string str : stringVec) {
+    if (index % 2 == 0) {
+      if (index != 0)
+        string_output += "\n";
+      size_t first = str.find('(');
+      size_t last = str.find(')', first);
+      str.erase(first, last-first + 1);
+      string_output += str + " (";
+    } else {
+      std::replace(str.begin(), str.end(), ';', ' ');
+      string_output += string_replace_all(str, "*.*", "*") + ")";
     }
-    else
-      even = "|" + str;
 
     index += 1;
   }
 
   string_output += "'";
-
   return string_output;
 }
 
