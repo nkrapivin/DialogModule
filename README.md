@@ -16,11 +16,11 @@ Windows, macOS, and Linux are supported. The Linux version has some dependencies
 
 On Debian-based Linux distributions, enter the following command into the terminal:
 
-sudo apt-get install gtk+3.0 zenity
+sudo apt-get install zenity
 
 On RedHat-based Linux distributions, enter the following command into the terminal:
 
-yum install gtk3 zenity
+yum install zenity
 
 ----------------------------------------------------------------------------------------------------------------------------------
 
@@ -28,11 +28,11 @@ yum install gtk3 zenity
 
 On Debian-based Linux distributions, enter the following command into the terminal:
 
-sudo apt-get install keditbookmarks kdialog
+sudo apt-get install kdialog
 
 On RedHat-based Linux distributions, enter the following command into the terminal:
 
-yum groupinstall "KDE (K Desktop Environment)"
+yum install kdialog
 
 ----------------------------------------------------------------------------------------------------------------------------------
 
