@@ -24,7 +24,7 @@ sudo yum install zenity
 
 On Arch-based Linux distributions, enter the following command into the terminal:
 
-sudo pacman -Sy zenity
+sudo pacman -S zenity
 
 ----------------------------------------------------------------------------------------------------------------------------------
 
@@ -40,7 +40,7 @@ sudo yum install kdialog
 
 On Arch-based Linux distributions, enter the following command into the terminal:
 
-sudo pacman -Sy kdialog
+sudo pacman -S kdialog
 
 ----------------------------------------------------------------------------------------------------------------------------------
 
