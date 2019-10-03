@@ -28,7 +28,7 @@ sudo pacman -S zenity
 
 ----------------------------------------------------------------------------------------------------------------------------------
 
-# Linux Dependency Option 2: KDE/Qt (kdialog)
+# Linux Dependency Option 2: Qt (kdialog)
 
 On Debian-based Linux distributions, enter the following command into the terminal:
 
