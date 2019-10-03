@@ -12,7 +12,7 @@ Windows, macOS, and Linux are supported. The Linux version has dependencies. Inc
 
 ----------------------------------------------------------------------------------------------------------------------------------
 
-# Linux Dependency Option 1: GTK+ (zenity)
+# Linux Dependency Option 1: GTK+ (Zenity)
 
 On Debian-based Linux distributions, enter the following command into the terminal:
 
@@ -28,7 +28,7 @@ sudo pacman -S zenity
 
 ----------------------------------------------------------------------------------------------------------------------------------
 
-# Linux Dependency Option 2: Qt (kdialog)
+# Linux Dependency Option 2: Qt (KDialog)
 
 On Debian-based Linux distributions, enter the following command into the terminal:
 
