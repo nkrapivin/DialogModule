@@ -20,7 +20,11 @@ sudo apt-get install zenity
 
 On RedHat-based Linux distributions, enter the following command into the terminal:
 
-yum install zenity
+sudo yum install zenity
+
+On Arch-based Linux distributions, enter the following command into the terminal:
+
+sudo pacman -Sy zenity
 
 ----------------------------------------------------------------------------------------------------------------------------------
 
@@ -32,7 +36,11 @@ sudo apt-get install kdialog
 
 On RedHat-based Linux distributions, enter the following command into the terminal:
 
-yum install kdialog
+sudo yum install kdialog
+
+On Arch-based Linux distributions, enter the following command into the terminal:
+
+sudo pacman -Sy kdialog
 
 ----------------------------------------------------------------------------------------------------------------------------------
 
