@@ -8,11 +8,11 @@ A simple, easy-to-use, cross-platform, dialog API, inspired by the GameMaker Lan
 
 # Platforms Supported and Features Included
 
-Windows, macOS, and Linux are supported. The Linux version has dependencies. Includes Message Box with OK, OK/Cancel, Yes/No, Yes/No/Cancel, Retry/Cancel, Abort/Retry/Ignore, Input Box for strings and numbers, Password Box for strings and numbers, Open File, Multi-Select Files, Save File, Folder Browser, Color Picker.
+Windows, macOS, and Linux are supported. The Linux version has dependencies. Includes Message Box with OK, OK/Cancel, Yes/No, Yes/No/Cancel, Retry/Cancel, Abort/Retry/Ignore, Input Box for strings and numbers, Password Box for strings and numbers, Open File, Multi-Select Files, Save File, Folder Browser, and Color Picker.
 
 ----------------------------------------------------------------------------------------------------------------------------------
 
-# Linux Dependency Option 1: Install for GTK Dialogs
+# Linux Dependency Option 1: Install for GTK+ Dialogs
 
 On Debian-based Linux distributions, enter the following command into the terminal:
 
@@ -28,7 +28,7 @@ sudo pacman -S zenity
 
 ----------------------------------------------------------------------------------------------------------------------------------
 
-# Linux Dependency Option 2: Install for KDE Dialogs
+# Linux Dependency Option 2: Install for Qt Dialogs
 
 On Debian-based Linux distributions, enter the following command into the terminal:
 
