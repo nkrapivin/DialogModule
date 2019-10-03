@@ -28,7 +28,7 @@ sudo pacman -S zenity
 
 ----------------------------------------------------------------------------------------------------------------------------------
 
-# Linux Dependency Option 2: Install for Qt Dialogs
+# Linux Dependency Option 2: Install for KDE/Qt Dialogs
 
 On Debian-based Linux distributions, enter the following command into the terminal:
 
