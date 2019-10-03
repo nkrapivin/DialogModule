@@ -14,33 +14,21 @@ Windows, macOS, and Linux are supported. The Linux version has dependencies. Inc
 
 # Linux Dependency Option 1: GTK+ (Zenity)
 
-On Debian-based Linux distributions, enter the following command into the terminal:
+Debian-based Linux distributions: sudo apt-get install zenity
 
-sudo apt-get install zenity
+RedHat-based Linux distributions: sudo yum install zenity
 
-On RedHat-based Linux distributions, enter the following command into the terminal:
-
-sudo yum install zenity
-
-On Arch-based Linux distributions, enter the following command into the terminal:
-
-sudo pacman -S zenity
+Arch-based Linux distributions: sudo pacman -S zenity
 
 ----------------------------------------------------------------------------------------------------------------------------------
 
 # Linux Dependency Option 2: KDE (KDialog)
 
-On Debian-based Linux distributions, enter the following command into the terminal:
+Debian-based Linux distributions: sudo apt-get install kdialog
 
-sudo apt-get install kdialog
+RedHat-based Linux distributions: sudo yum install kdialog
 
-On RedHat-based Linux distributions, enter the following command into the terminal:
-
-sudo yum install kdialog
-
-On Arch-based Linux distributions, enter the following command into the terminal:
-
-sudo pacman -S kdialog
+Arch-based Linux distributions: sudo pacman -S kdialog
 
 ----------------------------------------------------------------------------------------------------------------------------------
 
