@@ -45,10 +45,14 @@
 #include <string>
 #include <algorithm>
 
+#include <proc/readproc.h>
+
 #include <sys/wait.h>
 #include <sys/stat.h>
 #include <libgen.h>
 #include <unistd.h>
+
+#include <iostream>
 
 using std::string;
 
@@ -179,7 +183,7 @@ pid_t XGetActiveProcessId(Display *display) {
     unsigned long long_property = prop[0] + (prop[1] << 8) + (prop[2] << 16) + (prop[3] << 24);
     XFree(prop);
 
-    return (pid_t)(long_property - 1);
+    return (pid_t)long_property;
   }
   
   return 0;
@@ -225,6 +229,20 @@ string filename_ext(string fname) {
   return fname.substr(fp);
 }
 
+pid_t GetParentPidFromPid(pid_t pid) {
+  proc_t proc_info; pid_t ppid;
+  memset(&proc_info, 0, sizeof(proc_info));
+  PROCTAB *pt_ptr = openproc(PROC_FILLSTATUS | PROC_PID, &pid);
+  if(readproc(pt_ptr, &proc_info) != 0) { 
+    ppid = proc_info.ppid;
+    string cmd = proc_info.cmd;
+    if (cmd == "sh")
+      ppid = GetParentPidFromPid(ppid);
+  } else ppid = 0;
+  closeproc(pt_ptr);
+  return ppid;
+}
+
 void modify_dialog() {
   Display *display = XOpenDisplay(NULL);
   Window window, parent = owner ? (Window)owner : XGetActiveWindow(display);
@@ -232,7 +250,8 @@ void modify_dialog() {
   unsigned i = 0;
   while (i < 10) {
     std::this_thread::sleep_for(std::chrono::milliseconds(200));
-    if (XGetActiveProcessId(display) == getpid()) {
+    if (GetParentPidFromPid(XGetActiveProcessId(display)) == GetParentPidFromPid(getpid()) ||
+      GetParentPidFromPid(GetParentPidFromPid(XGetActiveProcessId(display))) == GetParentPidFromPid(getppid())) {
       window = XGetActiveWindow(display);
       break;
     }
