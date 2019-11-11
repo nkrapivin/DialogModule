@@ -45,11 +45,7 @@
 #include <string>
 #include <algorithm>
 
-#ifdef __linux__
 #include <proc/readproc.h>
-#else
-#include <sys/sysctl.h>
-#endif
 
 #include <sys/wait.h>
 #include <sys/stat.h>
@@ -233,36 +229,19 @@ string filename_ext(string fname) {
   return fname.substr(fp);
 }
 
-#ifdef __linux__
 pid_t GetParentPidFromPid(pid_t pid) {
-  proc_t proc_info; 
-  pid_t ppid = 0;
+  proc_t proc_info; pid_t ppid;
   memset(&proc_info, 0, sizeof(proc_info));
   PROCTAB *pt_ptr = openproc(PROC_FILLSTATUS | PROC_PID, &pid);
   if(readproc(pt_ptr, &proc_info) != 0) { 
     ppid = proc_info.ppid;
-    string cmd = filename_name(proc_info.cmd);
-    closeproc(pt_ptr);
+    string cmd = proc_info.cmd;
     if (cmd == "sh")
       ppid = GetParentPidFromPid(ppid);
-  }
+  } else ppid = 0;
+  closeproc(pt_ptr);
   return ppid;
 }
-#else
-pid_t GetParentPidFromPid(pid_t pid) {
-  struct kinfo_proc *proc_info; 
-  pid_t ppid = 0;
-  proc_info = kinfo_getproc(ppid);
-  if (proc_info) {
-    ppid = proc_info->e_ppid;
-    string cmd = filename_name(proc_info->ki_comm);
-    free(proc_info);
-    if (cmd == "sh")
-      ppid = GetParentPidFromPid(ppid);
-  }
-  return ppid;
-}
-#endif
 
 void modify_dialog() {
   Display *display = XOpenDisplay(NULL);
