@@ -57,16 +57,17 @@ namespace dialog_module {
   namespace {
 
     // misc
-    void* owner = NULL;
+    void *owner = NULL;
+    bool init = false;
     HWND dlg = NULL;
     HWND win = NULL;
     string caption;
     string tstr_icon;
-    bool initInputBox = false;
 
     // input boxes
-    HHOOK hook_handle = NULL;
+    bool init_input = false;
     bool hide_input = false;
+    HHOOK hook_handle = NULL;
 
     // get color
     string tstr_gctitle;
@@ -90,7 +91,7 @@ namespace dialog_module {
       return string{ buf.data(), (size_t)WideCharToMultiByte(CP_UTF8, 0, wstr.c_str(), (int)wstr.length(), buf.data(), nbytes, NULL, NULL) };
     }
 
-    int show_message_helper(char* str, bool cancelable) {
+    int show_message_helper(char *str, bool cancelable) {
       string tstr = str; wstring wstr = widen(tstr);
 
       string title = (caption == "") ? (cancelable ? "Question" : "Information") : caption;
@@ -103,7 +104,7 @@ namespace dialog_module {
       return cancelable ? ((result == IDOK) ? 1 : -1) : 1;
     }
 
-    int show_question_helper(char* str, bool cancelable) {
+    int show_question_helper(char *str, bool cancelable) {
       string tstr = str; wstring wstr = widen(tstr);
 
       string title = (caption == "") ? "Question" : caption;
@@ -116,7 +117,7 @@ namespace dialog_module {
       return cancelable ? ((result == IDYES) ? 1 : ((result == IDNO) ? 0 : -1)) : (result == IDYES);
     }
 
-    int show_error_helper(char* str, bool abort, bool attempt) {
+    int show_error_helper(char *str, bool abort, bool attempt) {
       string tstr = str; wstring wstr = widen(tstr);
 
       string title = (caption == "") ? "Error" : caption;
@@ -143,25 +144,25 @@ namespace dialog_module {
       CSimpleScriptSite() : m_cRefCount(1), m_hWnd(NULL) { }
 
       // IUnknown
-
+    
       STDMETHOD_(ULONG, AddRef)();
       STDMETHOD_(ULONG, Release)();
-      STDMETHOD(QueryInterface)(REFIID riid, void** ppvObject);
+      STDMETHOD(QueryInterface)(REFIID riid, void **ppvObject);
 
       // IActiveScriptSite
 
-      STDMETHOD(GetLCID)(LCID* plcid) { *plcid = 0; return S_OK; }
-      STDMETHOD(GetItemInfo)(LPCOLESTR pstrName, DWORD dwReturnMask, IUnknown** ppiunkItem, ITypeInfo** ppti) { return TYPE_E_ELEMENTNOTFOUND; }
-      STDMETHOD(GetDocVersionString)(BSTR* pbstrVersion) { *pbstrVersion = SysAllocString(L"1.0"); return S_OK; }
-      STDMETHOD(OnScriptTerminate)(const VARIANT* pvarResult, const EXCEPINFO* pexcepinfo) { return S_OK; }
+      STDMETHOD(GetLCID)(LCID *plcid) { *plcid = 0; return S_OK; }
+      STDMETHOD(GetItemInfo)(LPCOLESTR pstrName, DWORD dwReturnMask, IUnknown **ppiunkItem, ITypeInfo **ppti) { return TYPE_E_ELEMENTNOTFOUND; }
+      STDMETHOD(GetDocVersionString)(BSTR *pbstrVersion) { *pbstrVersion = SysAllocString(L"1.0"); return S_OK; }
+      STDMETHOD(OnScriptTerminate)(const VARIANT *pvarResult, const EXCEPINFO *pexcepinfo) { return S_OK; }
       STDMETHOD(OnStateChange)(SCRIPTSTATE ssScriptState) { return S_OK; }
-      STDMETHOD(OnScriptError)(IActiveScriptError* pIActiveScriptError) { return S_OK; }
+      STDMETHOD(OnScriptError)(IActiveScriptError *pIActiveScriptError) { return S_OK; }
       STDMETHOD(OnEnterScript)(void) { return S_OK; }
       STDMETHOD(OnLeaveScript)(void) { return S_OK; }
 
       // IActiveScriptSiteWindow
 
-      STDMETHOD(GetWindow)(HWND* phWnd) { *phWnd = m_hWnd; return S_OK; }
+      STDMETHOD(GetWindow)(HWND *phWnd) { *phWnd = m_hWnd; return S_OK; }
       STDMETHOD(EnableModeless)(BOOL fEnable) { return S_OK; }
 
       // Miscellaneous
@@ -186,51 +187,18 @@ namespace dialog_module {
       return m_cRefCount;
     }
 
-    STDMETHODIMP CSimpleScriptSite::QueryInterface(REFIID riid, void** ppvObject) {
+    STDMETHODIMP CSimpleScriptSite::QueryInterface(REFIID riid, void **ppvObject) {
       if (riid == IID_IUnknown || riid == IID_IActiveScriptSiteWindow) {
-        *ppvObject = (IActiveScriptSiteWindow*)this;
+        *ppvObject = (IActiveScriptSiteWindow *)this;
         AddRef();
         return NOERROR;
       }
       if (riid == IID_IActiveScriptSite) {
-        *ppvObject = (IActiveScriptSite*)this;
+        *ppvObject = (IActiveScriptSite *)this;
         AddRef();
         return NOERROR;
       }
       return E_NOINTERFACE;
-    }
-
-    void CenterRectToMonitor(LPRECT prc, UINT flags) {
-      HMONITOR hMonitor;
-      MONITORINFO mi;
-      RECT        rc;
-      int         w = prc->right - prc->left;
-      int         h = prc->bottom - prc->top;
-
-      hMonitor = MonitorFromRect(prc, MONITOR_DEFAULTTONEAREST);
-
-      mi.cbSize = sizeof(mi);
-      GetMonitorInfo(hMonitor, &mi);
-      rc = mi.rcMonitor;
-
-      if (flags & 0x0001) {
-        prc->left = rc.left + (rc.right - rc.left - w) / 2;
-        prc->top = rc.top + (rc.bottom - rc.top - h) / 2;
-        prc->right = prc->left + w;
-        prc->bottom = prc->top + h;
-      } else {
-        prc->left = rc.left + (rc.right - rc.left - w) / 2;
-        prc->top = rc.top + (rc.bottom - rc.top - h) / 3;
-        prc->right = prc->left + w;
-        prc->bottom = prc->top + h;
-      }
-    }
-
-    void CenterWindowToMonitor(HWND hwnd, UINT flags) {
-      RECT rc;
-      GetWindowRect(hwnd, &rc);
-      CenterRectToMonitor(&rc, flags);
-      SetWindowPos(hwnd, NULL, rc.left, rc.top, 0, 0, SWP_NOSIZE | SWP_NOZORDER | SWP_NOACTIVATE);
     }
 
     HICON GetIcon(HWND hwnd) {
@@ -249,30 +217,29 @@ namespace dialog_module {
         return CallNextHookEx(hook_handle, nCode, wParam, lParam);
 
       if (nCode == HCBT_CREATEWND) {
-        CBT_CREATEWNDW* cbtcr = (CBT_CREATEWNDW*)lParam;
+        CBT_CREATEWNDW *cbtcr = (CBT_CREATEWNDW *)lParam;
         if (win != (HWND)wParam && cbtcr->lpcs->hwndParent == win) {
           dlg = (HWND)wParam;
-          initInputBox = true;
+          init_input = true;
         }
       }
 
       if (dlg != NULL) {
-        if (nCode == HCBT_ACTIVATE && initInputBox == true) {
+        if (nCode == HCBT_ACTIVATE && init_input == true) {
           RECT wrect; GetWindowRect(dlg, &wrect);
           unsigned width = wrect.right - wrect.left;
           unsigned height = wrect.bottom - wrect.top;
           int xpos = wrect.left - (width / 2);
           int ypos = wrect.top - (height / 2);
           MoveWindow(dlg, xpos, ypos, width, height, true);
-          CenterWindowToMonitor(dlg, 0);
           if (hide_input == true)
             SendDlgItemMessageW(dlg, 1000, EM_SETPASSWORDCHAR, L'●', 0);
-          initInputBox = false;
+          init_input = false;
         }
         wstring cpp_wstr_icon = widen(tstr_icon);
         if (PathFileExistsW(cpp_wstr_icon.c_str())) {
           HICON hIcon;
-          Bitmap* png = Bitmap::FromFile(cpp_wstr_icon.c_str());
+          Bitmap *png = Bitmap::FromFile(cpp_wstr_icon.c_str());
           png->GetHICON(&hIcon);
           PostMessage(dlg, WM_SETICON, ICON_SMALL, (LPARAM)hIcon);
           DeleteObject(hIcon);
@@ -291,17 +258,31 @@ namespace dialog_module {
         return CallNextHookEx(hook_handle, nCode, wParam, lParam);
 
       if (nCode == HCBT_CREATEWND) {
-        CBT_CREATEWNDW* cbtcr = (CBT_CREATEWNDW*)lParam;
+        CBT_CREATEWNDW *cbtcr = (CBT_CREATEWNDW *)lParam;
         win = owner ? (HWND)owner : GetForegroundWindow();
-        if (win != (HWND)wParam && cbtcr->lpcs->hwndParent == win)
+        if (win != (HWND)wParam && cbtcr->lpcs->hwndParent == win) {
           dlg = (HWND)wParam;
+          init = true;
+        }
       }
 
       if (dlg != NULL) {
+        if (nCode == HCBT_ACTIVATE && init == true) {
+          RECT wrect1; GetWindowRect(dlg, &wrect1);
+          RECT wrect2; GetWindowRect(win, &wrect2);
+          unsigned width1 = wrect1.right - wrect1.left;
+          unsigned height1 = wrect1.bottom - wrect1.top;
+          unsigned width2 = wrect2.right - wrect2.left;
+          unsigned height2 = wrect2.bottom - wrect2.top;
+          int xpos = wrect2.left + (width2 / 2) - (width1 / 2);
+          int ypos = wrect2.top + (height2 / 2) - (height1 / 2);
+          MoveWindow(dlg, xpos, ypos, width1, height1, true);
+          init = false;
+        }
         wstring cpp_wstr_icon = widen(tstr_icon);
         if (PathFileExistsW(cpp_wstr_icon.c_str())) {
           HICON hIcon;
-          Bitmap* png = Bitmap::FromFile(cpp_wstr_icon.c_str());
+          Bitmap *png = Bitmap::FromFile(cpp_wstr_icon.c_str());
           png->GetHICON(&hIcon);
           PostMessage(dlg, WM_SETICON, ICON_SMALL, (LPARAM)hIcon);
           DeleteObject(hIcon);
@@ -327,12 +308,12 @@ namespace dialog_module {
       return str;
     }
 
-    char* InputBox(char* Prompt, char* Title, char* Default) {
+    char *InputBox(char *Prompt, char *Title, char *Default) {
       HRESULT hr = S_OK;
       hr = CoInitialize(NULL);
 
       // Initialize
-      CSimpleScriptSite* pScriptSite = new CSimpleScriptSite();
+      CSimpleScriptSite *pScriptSite = new CSimpleScriptSite();
       CComPtr<IActiveScript> spVBScript;
       CComPtr<IActiveScriptParse> spVBScriptParse;
       hr = spVBScript.CoCreateInstance(OLESTR("VBScript"));
@@ -377,13 +358,13 @@ namespace dialog_module {
       ::CoUninitialize();
       static string strResult;
       _bstr_t bstrResult = (_bstr_t)result;
-      strResult = narrow((wchar_t*)bstrResult);
-      return (char*)strResult.c_str();
+      strResult = narrow((wchar_t *)bstrResult);
+      return (char *)strResult.c_str();
     }
 
-    char* get_string_helper(char* str, char* def, bool hidden) {
+    char *get_string_helper(char *str, char *def, bool hidden) {
       hide_input = hidden; string title = (caption == "") ? "Input Query" : caption;
-      return InputBox(str, (char*)title.c_str(), def);
+      return InputBox(str, (char *)title.c_str(), def);
     }
 
     string remove_trailing_zeros(double numb) {
@@ -395,7 +376,7 @@ namespace dialog_module {
       return strnumb;
     }
 
-    double get_integer_helper(char* str, double def, bool hidden) {
+    double get_integer_helper(char *str, double def, bool hidden) {
       double DIGITS_MIN = -999999999999999; 
       double DIGITS_MAX = 999999999999999;
 
@@ -403,7 +384,7 @@ namespace dialog_module {
       if (def > DIGITS_MAX) def = DIGITS_MAX;
 
       string cpp_tdef = remove_trailing_zeros(def);
-      double result = strtod(get_string_helper(str, (char*)cpp_tdef.c_str(), hidden), NULL);
+      double result = strtod(get_string_helper(str, (char *)cpp_tdef.c_str(), hidden), NULL);
 
       if (result < DIGITS_MIN) result = DIGITS_MIN; 
       if (result > DIGITS_MAX) result = DIGITS_MAX;
@@ -424,12 +405,10 @@ namespace dialog_module {
 
     UINT_PTR CALLBACK GetColorProc(HWND hdlg, UINT uiMsg, WPARAM wParam, LPARAM lParam) {
       if (uiMsg == WM_INITDIALOG) {
-        CenterWindowToMonitor(hdlg, 0);
         if (tstr_gctitle != "")
           SetWindowTextW(hdlg, cpp_wstr_gctitle.c_str());
         PostMessageW(hdlg, WM_SETFOCUS, 0, 0);
       }
-
       return false;
     }
 
@@ -535,7 +514,7 @@ namespace dialog_module {
     }
 
     string get_directory_helper(string dname, string title) {
-      IFileDialog* selectDirectory;
+      IFileDialog *selectDirectory;
       CoCreateInstance(CLSID_FileOpenDialog, NULL, CLSCTX_INPROC_SERVER, IID_PPV_ARGS(&selectDirectory));
 
       DWORD options;
@@ -543,7 +522,7 @@ namespace dialog_module {
       selectDirectory->SetOptions(options | FOS_PICKFOLDERS | FOS_NOCHANGEDIR | FOS_FORCEFILESYSTEM);
 
       wstring cpp_wstr_dname = widen(dname);
-      LPWSTR szFilePath = (wchar_t*)cpp_wstr_dname.c_str();
+      LPWSTR szFilePath = (wchar_t *)cpp_wstr_dname.c_str();
 
       if (dname == "") {
         wchar_t buffer[MAX_PATH];
@@ -552,7 +531,7 @@ namespace dialog_module {
         }
       }
 
-      IShellItem* pItem = nullptr;
+      IShellItem *pItem = nullptr;
       HRESULT hr = ::SHCreateItemFromParsingName(szFilePath, nullptr, IID_PPV_ARGS(&pItem));
 
       if (SUCCEEDED(hr)) {
@@ -608,7 +587,7 @@ namespace dialog_module {
 
   } // anonymous namespace
 
-  int show_message(char* str) {
+  int show_message(char *str) {
     DWORD ThreadID = GetCurrentThreadId();
     HINSTANCE ModHwnd = GetModuleHandle(NULL);
     hook_handle = SetWindowsHookEx(WH_CBT, &DialogProc, ModHwnd, ThreadID);
@@ -617,7 +596,7 @@ namespace dialog_module {
     return result;
   }
 
-  int show_message_cancelable(char* str) {
+  int show_message_cancelable(char *str) {
     DWORD ThreadID = GetCurrentThreadId();
     HINSTANCE ModHwnd = GetModuleHandle(NULL);
     hook_handle = SetWindowsHookEx(WH_CBT, &DialogProc, ModHwnd, ThreadID);
@@ -626,7 +605,7 @@ namespace dialog_module {
     return result;
   }
 
-  int show_question(char* str) {
+  int show_question(char *str) {
     DWORD ThreadID = GetCurrentThreadId();
     HINSTANCE ModHwnd = GetModuleHandle(NULL);
     hook_handle = SetWindowsHookEx(WH_CBT, &DialogProc, ModHwnd, ThreadID);
@@ -635,7 +614,7 @@ namespace dialog_module {
     return result;
   }
 
-  int show_question_cancelable(char* str) {
+  int show_question_cancelable(char *str) {
     DWORD ThreadID = GetCurrentThreadId();
     HINSTANCE ModHwnd = GetModuleHandle(NULL);
     hook_handle = SetWindowsHookEx(WH_CBT, &DialogProc, ModHwnd, ThreadID);
@@ -644,7 +623,7 @@ namespace dialog_module {
     return result;
   }
 
-  int show_attempt(char* str) {
+  int show_attempt(char *str) {
     DWORD ThreadID = GetCurrentThreadId();
     HINSTANCE ModHwnd = GetModuleHandle(NULL);
     hook_handle = SetWindowsHookEx(WH_CBT, &DialogProc, ModHwnd, ThreadID);
@@ -653,7 +632,7 @@ namespace dialog_module {
     return result;
   }
 
-  int show_error(char* str, bool abort) {
+  int show_error(char *str, bool abort) {
     DWORD ThreadID = GetCurrentThreadId();
     HINSTANCE ModHwnd = GetModuleHandle(NULL);
     hook_handle = SetWindowsHookEx(WH_CBT, &DialogProc, ModHwnd, ThreadID);
@@ -662,33 +641,33 @@ namespace dialog_module {
     return result;
   }
 
-  char* get_string(char* str, char* def) {
+  char *get_string(char *str, char *def) {
     return get_string_helper(str, def, false);
   }
 
-  char* get_password(char* str, char* def) {
+  char *get_password(char *str, char *def) {
     return get_string_helper(str, def, true);
   }
 
-  double get_integer(char* str, double def) {
+  double get_integer(char *str, double def) {
     return get_integer_helper(str, def, false);
   }
 
-  double get_passcode(char* str, double def) {
+  double get_passcode(char *str, double def) {
     return get_integer_helper(str, def, true);
   }
 
-  char* get_open_filename(char* filter, char* fname) {
+  char *get_open_filename(char *filter, char *fname) {
     string str_filter = filter; string str_fname = fname; static string result;
     DWORD ThreadID = GetCurrentThreadId();
     HINSTANCE ModHwnd = GetModuleHandle(NULL);
     hook_handle = SetWindowsHookEx(WH_CBT, &DialogProc, ModHwnd, ThreadID);
     result = get_open_filename_helper(str_filter, str_fname, "", "");
     UnhookWindowsHookEx(hook_handle);
-    return (char*)result.c_str();
+    return (char *)result.c_str();
   }
 
-  char* get_open_filename_ext(char* filter, char* fname, char* dir, char* title) {
+  char *get_open_filename_ext(char *filter, char *fname, char *dir, char *title) {
     string str_filter = filter; string str_fname = fname; 
     string str_dir = dir; string str_title = title; static string result;
     DWORD ThreadID = GetCurrentThreadId();
@@ -696,20 +675,20 @@ namespace dialog_module {
     hook_handle = SetWindowsHookEx(WH_CBT, &DialogProc, ModHwnd, ThreadID);
     result = get_open_filename_helper(str_filter, str_fname, str_dir, str_title);
     UnhookWindowsHookEx(hook_handle);
-    return (char*)result.c_str();
+    return (char *)result.c_str();
   }
 
-  char* get_open_filenames(char* filter, char* fname) {
+  char *get_open_filenames(char *filter, char *fname) {
     string str_filter = filter; string str_fname = fname; static string result;
     DWORD ThreadID = GetCurrentThreadId();
     HINSTANCE ModHwnd = GetModuleHandle(NULL);
     hook_handle = SetWindowsHookEx(WH_CBT, &DialogProc, ModHwnd, ThreadID);
     result = get_open_filenames_helper(str_filter, str_fname, "", "");
     UnhookWindowsHookEx(hook_handle);
-    return (char*)result.c_str();
+    return (char *)result.c_str();
   }
 
-  char* get_open_filenames_ext(char* filter, char* fname, char* dir, char* title) {
+  char *get_open_filenames_ext(char *filter, char *fname, char *dir, char *title) {
     string str_filter = filter; string str_fname = fname;
     string str_dir = dir; string str_title = title; static string result;
     DWORD ThreadID = GetCurrentThreadId();
@@ -717,20 +696,20 @@ namespace dialog_module {
     hook_handle = SetWindowsHookEx(WH_CBT, &DialogProc, ModHwnd, ThreadID);
     result = get_open_filenames_helper(str_filter, str_fname, str_dir, str_title);
     UnhookWindowsHookEx(hook_handle);
-    return (char*)result.c_str();
+    return (char *)result.c_str();
   }
 
-  char* get_save_filename(char* filter, char* fname) {
+  char *get_save_filename(char *filter, char *fname) {
     string str_filter = filter; string str_fname = fname; static string result;
     DWORD ThreadID = GetCurrentThreadId();
     HINSTANCE ModHwnd = GetModuleHandle(NULL);
     hook_handle = SetWindowsHookEx(WH_CBT, &DialogProc, ModHwnd, ThreadID);
     result = get_save_filename_helper(str_filter, str_fname, "", "");
     UnhookWindowsHookEx(hook_handle);
-    return (char*)result.c_str();
+    return (char *)result.c_str();
   }
 
-  char* get_save_filename_ext(char* filter, char* fname, char* dir, char* title) {
+  char *get_save_filename_ext(char *filter, char *fname, char *dir, char *title) {
     string str_filter = filter; string str_fname = fname;
     string str_dir = dir; string str_title = title; static string result;
     DWORD ThreadID = GetCurrentThreadId();
@@ -738,27 +717,27 @@ namespace dialog_module {
     hook_handle = SetWindowsHookEx(WH_CBT, &DialogProc, ModHwnd, ThreadID);
     result = get_save_filename_helper(str_filter, str_fname, str_dir, str_title);
     UnhookWindowsHookEx(hook_handle);
-    return (char*)result.c_str();
+    return (char *)result.c_str();
   }
 
-  char* get_directory(char* dname) {
+  char *get_directory(char *dname) {
     string str_dname = dname;  static string result;
     DWORD ThreadID = GetCurrentThreadId();
     HINSTANCE ModHwnd = GetModuleHandle(NULL);
     hook_handle = SetWindowsHookEx(WH_CBT, &DialogProc, ModHwnd, ThreadID);
     result = get_directory_helper(str_dname, "");
     UnhookWindowsHookEx(hook_handle);
-    return (char*)result.c_str();
+    return (char *)result.c_str();
   }
 
-  char* get_directory_alt(char* capt, char* root) {
+  char *get_directory_alt(char *capt, char *root) {
     string str_dname = root; string str_title = capt; static string result;
     DWORD ThreadID = GetCurrentThreadId();
     HINSTANCE ModHwnd = GetModuleHandle(NULL);
     hook_handle = SetWindowsHookEx(WH_CBT, &DialogProc, ModHwnd, ThreadID);
     result = get_directory_helper(str_dname, str_title);
     UnhookWindowsHookEx(hook_handle);
-    return (char*)result.c_str();
+    return (char *)result.c_str();
   }
 
   int get_color(int defcol) {
@@ -770,7 +749,7 @@ namespace dialog_module {
     return result;
   }
 
-  int get_color_ext(int defcol, char* title) {
+  int get_color_ext(int defcol, char *title) {
     string str_title = title;
     DWORD ThreadID = GetCurrentThreadId();
     HINSTANCE ModHwnd = GetModuleHandle(NULL);
@@ -780,42 +759,42 @@ namespace dialog_module {
     return result;
   }
 
-  char* widget_get_caption() {
+  char *widget_get_caption() {
     return (char *)caption.c_str();
   }
 
-  void widget_set_caption(char* str) {
+  void widget_set_caption(char *str) {
     caption = str;
   }
 
-  void* widget_get_owner() {
+  void *widget_get_owner() {
     return owner;
   }
 
-  void widget_set_owner(void* hwnd) {
+  void widget_set_owner(void *hwnd) {
     owner = hwnd;
   }
 
-  char* widget_get_icon() {
+  char *widget_get_icon() {
     wchar_t wstr_icon[MAX_PATH];
     wstring cpp_wstr_icon = widen(tstr_icon);
     GetFullPathNameW(cpp_wstr_icon.c_str(), MAX_PATH, wstr_icon, NULL);
     static string tstr_result; tstr_result = narrow(wstr_icon);
-    return (char*)tstr_result.c_str();
+    return (char *)tstr_result.c_str();
   }
 
-  void widget_set_icon(char* icon) {
+  void widget_set_icon(char *icon) {
     wchar_t wstr_icon[MAX_PATH];
     wstring cpp_wstr_icon = widen(icon);
     GetFullPathNameW(cpp_wstr_icon.c_str(), MAX_PATH, wstr_icon, NULL);
     if (PathFileExistsW(wstr_icon)) tstr_icon = icon;
   }
 
-  char* widget_get_system() {
-    return (char*)"Win32";
+  char *widget_get_system() {
+    return (char *)"Win32";
   }
 
-  void widget_set_system(char* sys) {
+  void widget_set_system(char *sys) {
 
   }
 
