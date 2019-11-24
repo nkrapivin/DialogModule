@@ -229,29 +229,27 @@ string filename_ext(string fname) {
   return fname.substr(fp);
 }
 
-pid_t GetParentPidFromPid(pid_t pid) {
-  proc_t proc_info; pid_t ppid;
+pid_t IsPpidOfPid(pid_t pid, pid_t ppid) {
+  proc_t proc_info; pid_t result = 0;
   memset(&proc_info, 0, sizeof(proc_info));
   PROCTAB *pt_ptr = openproc(PROC_FILLSTATUS | PROC_PID, &pid);
-  if(readproc(pt_ptr, &proc_info) != 0) { 
-    ppid = proc_info.ppid;
-    string cmd = proc_info.cmd;
-    if (cmd == "sh")
-      ppid = GetParentPidFromPid(ppid);
-  } else ppid = 0;
+  if (readproc(pt_ptr, &proc_info) != 0) { 
+    result = proc_info.ppid;
+    if (result != ppid && kill(IsPpidOfPid(result, ppid), 0) == 0)
+      result = IsPpidOfPid(result, ppid);
+  }
   closeproc(pt_ptr);
-  return ppid;
+  return result;
 }
 
-void modify_dialog() {
+void modify_dialog(pid_t ppid) {
   Display *display = XOpenDisplay(NULL);
   Window window, parent = owner ? (Window)owner : XGetActiveWindow(display);
 
   unsigned i = 0;
   while (i < 10) {
     std::this_thread::sleep_for(std::chrono::milliseconds(200));
-    if (GetParentPidFromPid(XGetActiveProcessId(display)) == GetParentPidFromPid(getpid()) ||
-      GetParentPidFromPid(GetParentPidFromPid(XGetActiveProcessId(display))) == GetParentPidFromPid(getppid())) {
+    if (IsPpidOfPid(XGetActiveProcessId(display), ppid) == IsPpidOfPid(getpid(), ppid)) {
       window = XGetActiveWindow(display);
       break;
     }
@@ -322,9 +320,10 @@ string shellscript_evaluate(string command) {
   string str_buffer;
 
   FILE *file = popen(command.c_str(), "r");
+  pid_t ppid = getpid();
 
   if (fork() == 0) {
-    modify_dialog();
+    modify_dialog(ppid);
     exit(0);
   }
 
