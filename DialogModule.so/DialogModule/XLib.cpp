@@ -45,7 +45,12 @@
 #include <string>
 #include <algorithm>
 
+#ifdef __linux__
 #include <proc/readproc.h>
+#else // BSD
+#include <sys/user.h>
+#include <libutil.h>
+#endif
 
 #include <sys/wait.h>
 #include <sys/stat.h>
@@ -230,16 +235,25 @@ string filename_ext(string fname) {
 }
 
 pid_t IsPpidOfPid(pid_t pid, pid_t ppid) {
-  proc_t proc_info; pid_t result = 0;
-  memset(&proc_info, 0, sizeof(proc_info));
-  PROCTAB *pt_ptr = openproc(PROC_FILLSTATUS | PROC_PID, &pid);
-  if (readproc(pt_ptr, &proc_info) != 0) { 
-    result = proc_info.ppid;
-    if (result != ppid && kill(IsPpidOfPid(result, ppid), 0) == 0)
-      result = IsPpidOfPid(result, ppid);
+  while (pid != ppid) {
+    if (pid <= 1) break;
+    #ifdef __linux__
+    proc_t proc_info;
+    memset(&proc_info, 0, sizeof(proc_info));
+    PROCTAB *pt_ptr = openproc(PROC_FILLSTATUS | PROC_PID, &pid);
+    if (readproc(pt_ptr, &proc_info) != 0) { 
+      pid = proc_info.ppid;
+    }
+    closeproc(pt_ptr);
+    #else // BSD
+    struct kinfo_proc *proc_info = kinfo_getproc(pid);
+    if (proc_info) {
+      pid = proc_info->ki_ppid;
+    }
+    free(proc_info);
+    #endif
   }
-  closeproc(pt_ptr);
-  return result;
+  return pid;
 }
 
 void modify_dialog(pid_t ppid) {
