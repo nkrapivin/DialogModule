@@ -28,7 +28,7 @@
 
 #ifdef _WIN32
 #define EXPORTED_FUNCTION extern "C" __declspec(dllexport)
-#else /* macOS and Linux */
+#else /* macOS, Linux, and BSD */
 #define EXPORTED_FUNCTION extern "C" __attribute__((visibility("default")))
 #endif
 
