@@ -26,33 +26,33 @@
 
 namespace dialog_module {
 
-  int show_message(char* str);
-  int show_message_cancelable(char* str);
-  int show_question(char* str);
-  int show_question_cancelable(char* str);
-  int show_attempt(char* str);
-  int show_error(char* str, bool abort);
-  char* get_string(char* str, char* def);
-  char* get_password(char* str, char* def);
-  double get_integer(char* str, double def);
-  double get_passcode(char* str, double def);
-  char* get_open_filename(char* filter, char* fname);
-  char* get_open_filename_ext(char* filter, char* fname, char* dir, char* title);
-  char* get_open_filenames(char* filter, char* fname);
-  char* get_open_filenames_ext(char* filter, char* fname, char* dir, char* title);
-  char* get_save_filename(char* filter, char* fname);
-  char* get_save_filename_ext(char* filter, char* fname, char* dir, char* title);
-  char* get_directory(char* dname);
-  char* get_directory_alt(char* capt, char* root);
+  int show_message(char *str);
+  int show_message_cancelable(char *str);
+  int show_question(char *str);
+  int show_question_cancelable(char *str);
+  int show_attempt(char *str);
+  int show_error(char *str, bool abort);
+  char *get_string(char *str, char *def);
+  char *get_password(char *str, char *def);
+  double get_integer(char *str, double def);
+  double get_passcode(char *str, double def);
+  char *get_open_filename(char *filter, char *fname);
+  char *get_open_filename_ext(char *filter, char *fname, char *dir, char *title);
+  char *get_open_filenames(char *filter, char *fname);
+  char *get_open_filenames_ext(char *filter, char *fname, char *dir, char *title);
+  char *get_save_filename(char *filter, char *fname);
+  char *get_save_filename_ext(char *filter, char *fname, char *dir, char *title);
+  char *get_directory(char *dname);
+  char *get_directory_alt(char *capt, char *root);
   int get_color(int defcol);
-  int get_color_ext(int defcol, char* title);
-  char* widget_get_caption();
-  void widget_set_caption(char* str);
-  void* widget_get_owner();
-  void widget_set_owner(void* hwnd);
-  char* widget_get_icon();
-  void widget_set_icon(char* icon);
-  char* widget_get_system();
-  void widget_set_system(char* sys);
+  int get_color_ext(int defcol, char *title);
+  char *widget_get_caption();
+  void widget_set_caption(char *str);
+  void *widget_get_owner();
+  void widget_set_owner(void *hwnd);
+  char *widget_get_icon();
+  void widget_set_icon(char *icon);
+  char *widget_get_system();
+  void widget_set_system(char *sys);
 
 } // namespace dialog_module
