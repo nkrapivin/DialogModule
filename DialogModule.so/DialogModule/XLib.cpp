@@ -486,9 +486,9 @@ int show_message_helperfunc(char *str) {
 
     str_command = string("kdialog ") +
     #ifndef __APPLE__
-    string("--attach=") + window + string(" ") + str_cancel +
+    string("--attach=") + window + string(" ") +
     #endif
-    string("--title \"") + str_title + string("\";") + str_echo;
+    str_cancel + string("--title \"") + str_title + string("\";") + str_echo;
   }
 
   string str_result = shellscript_evaluate(str_command);
@@ -526,7 +526,7 @@ int show_question_helperfunc(char *str) {
 
     str_command = string("kdialog ") +
     #ifndef __APPLE__
-    string("--attach=") + window + string(" ") + str_cancel +
+    string("--attach=") + window + string(" ") +
     #endif
     string("--yesno") + str_cancel + string(" \"") + add_escaping(str, false, "") + string("\" ") +
     string("--yes-label Yes --no-label No ") + string("--title \"") + str_title + string("\" --icon dialog-question;") +
@@ -583,7 +583,7 @@ int show_attempt(char *str) {
   else if (dm_dialogengine == dm_kdialog) {
     str_command = string("kdialog ") +
     #ifndef __APPLE__
-    string("--attach=") + window + string(" ") + str_cancel +
+    string("--attach=") + window + string(" ") +
     #endif
     string("--warningyesno") + string(" \"") + add_escaping(str, false, "") + string("\" ") +
     string("--yes-label Retry --no-label Cancel ") + string("--title \"") +
@@ -625,7 +625,7 @@ int show_error(char *str, bool abort) {
 
     str_command = string("kdialog ") +
     #ifndef __APPLE__
-    string("--attach=") + window + string(" ") + str_cancel +
+    string("--attach=") + window + string(" ") +
     #endif
     string("--warningyesnocancel \"") + add_escaping(str, false, "") + string("\" ") +
     string("--yes-label Abort --no-label Retry --cancel-label Ignore ") +
@@ -663,7 +663,7 @@ char *get_string(char *str, char *def) {
   else if (dm_dialogengine == dm_kdialog) {
     str_command = string("ans=$(kdialog ") +
     #ifndef __APPLE__
-    string("--attach=") + window + string(" ") + str_cancel +
+    string("--attach=") + window + string(" ") +
     #endif
     string("--inputbox \"") + add_escaping(str, false, "") + string("\" \"") +
     add_escaping(def, false, "") + string("\" --title \"") +
@@ -698,7 +698,7 @@ char *get_password(char *str, char *def) {
   else if (dm_dialogengine == dm_kdialog) {
     str_command = string("ans=$(kdialog ") +
     #ifndef __APPLE__
-    string("--attach=") + window + string(" ") + str_cancel +
+    string("--attach=") + window + string(" ") +
     #endif
     string("--password \"") + add_escaping(str, false, "") + string("\" \"") +
     add_escaping(def, false, "") + string("\" --title \"") +
@@ -771,7 +771,7 @@ char *get_open_filename(char *filter, char *fname) {
 
     str_command = string("ans=$(kdialog ") +
     #ifndef __APPLE__
-    string("--attach=") + window + string(" ") + str_cancel +
+    string("--attach=") + window + string(" ") +
     #endif
     string("--getopenfilename ") + pwd + add_escaping(kdialog_filter(filter), false, "") +
     string(" --title \"") + str_title + string("\"") + str_icon + string(");echo $ans");
@@ -820,7 +820,7 @@ char *get_open_filename_ext(char *filter, char *fname, char *dir, char *title) {
 
     str_command = string("ans=$(kdialog ") +
     #ifndef __APPLE__
-    string("--attach=") + window + string(" ") + str_cancel +
+    string("--attach=") + window + string(" ") +
     #endif
     string("--getopenfilename ") + pwd + add_escaping(kdialog_filter(filter), false, "") +
     string(" --title \"") + str_title + string("\"") + str_icon + string(");echo $ans");
@@ -864,7 +864,7 @@ char *get_open_filenames(char *filter, char *fname) {
 
     str_command = string("kdialog ") +
     #ifndef __APPLE__
-    string("--attach=") + window + string(" ") + str_cancel +
+    string("--attach=") + window + string(" ") +
     #endif
     string("--getopenfilename ") + pwd + add_escaping(kdialog_filter(filter), false, "") +
     string(" --multiple --separate-output --title \"") + str_title + string("\"") + str_icon;
@@ -920,7 +920,7 @@ char *get_open_filenames_ext(char *filter, char *fname, char *dir, char *title) 
 
     str_command = string("kdialog ") +
     #ifndef __APPLE__
-    string("--attach=") + window + string(" ") + str_cancel +
+    string("--attach=") + window + string(" ") +
     #endif
     string("--getopenfilename ") + pwd + add_escaping(kdialog_filter(filter), false, "") +
     string(" --multiple --separate-output --title \"") + str_title + string("\"") + str_icon;
@@ -971,7 +971,7 @@ char *get_save_filename(char *filter, char *fname) {
 
     str_command = string("ans=$(kdialog ") +
     #ifndef __APPLE__
-    string("--attach=") + window + string(" ") + str_cancel +
+    string("--attach=") + window + string(" ") +
     #endif
     string("--getsavefilename ") + pwd + add_escaping(kdialog_filter(filter), false, "") +
     string(" --title \"") + str_title + string("\"") + str_icon + string(");echo $ans");
@@ -1016,7 +1016,7 @@ char *get_save_filename_ext(char *filter, char *fname, char *dir, char *title) {
 
     str_command = string("ans=$(kdialog ") +
     #ifndef __APPLE__
-    string("--attach=") + window + string(" ") + str_cancel +
+    string("--attach=") + window + string(" ") +
     #endif
     string("--getsavefilename ") + pwd + add_escaping(kdialog_filter(filter), false, "") +
     string(" --title \"") + str_title + string("\"") + str_icon + string(");echo $ans");
@@ -1057,7 +1057,7 @@ char *get_directory(char *dname) {
 
     str_command = string("ans=$(kdialog ") +
     #ifndef __APPLE__
-    string("--attach=") + window + string(" ") + str_cancel +
+    string("--attach=") + window + string(" ") +
     #endif
     string("--getexistingdirectory ") + pwd + string(" --title \"") + str_title + string("\"") + str_icon + str_end;
   }
@@ -1097,7 +1097,7 @@ char *get_directory_alt(char *capt, char *root) {
 
     str_command = string("ans=$(kdialog ") +
     #ifndef __APPLE__
-    string("--attach=") + window + string(" ") + str_cancel +
+    string("--attach=") + window + string(" ") +
     #endif
     string("--getexistingdirectory ") + pwd + string(" --title \"") + str_title + string("\"") + str_icon + str_end;
   }
@@ -1163,7 +1163,7 @@ int get_color(int defcol) {
 
     str_command = string("ans=$(kdialog ") +
     #ifndef __APPLE__
-    string("--attach=") + window + string(" ") + str_cancel +
+    string("--attach=") + window + string(" ") +
     #endif
     string("--getcolor --default '") + str_defcol + string("' --title \"") + str_title +
     string("\"") + str_icon + string(");if [ $? = 0 ] ;then echo $ans;else echo -1;fi");
@@ -1241,7 +1241,7 @@ int get_color_ext(int defcol, char *title) {
 
     str_command = string("ans=$(kdialog ") +
     #ifndef __APPLE__
-    string("--attach=") + window + string(" ") + str_cancel +
+    string("--attach=") + window + string(" ") +
     #endif
     string("--getcolor --default '") + str_defcol + string("' --title \"") + str_title +
     string("\"") + str_icon + string(");if [ $? = 0 ] ;then echo $ans;else echo -1;fi");
