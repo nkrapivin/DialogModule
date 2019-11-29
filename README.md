@@ -8,7 +8,7 @@ A simple, easy-to-use, cross-platform, dialog API, inspired by the GameMaker Lan
 
 # Platforms Supported and Features Included
 
-Windows, macOS, Linux, and BSD are supported. The Linux and BSD versions have dependencies. Potentially Solaris can be supported, but no binaries for this platform has been built, (or tested), yet, and it would also rely on the same dependencies as Linux/BSD does, and you would need to build from the Linux/BSD source code on that platform. Includes Message Box with OK, OK/Cancel, Yes/No, Yes/No/Cancel, Retry/Cancel, Abort/Retry/Ignore, Input Box for strings and numbers, Password Box for strings and numbers, Open File, Multi-Select Files, Save File, Folder Browser, and Color Picker.
+Windows, macOS, Linux, and BSD are supported. The Linux and BSD versions have dependencies. Potentially Solaris can be supported, but no binaries for this platform has been built, (or tested), yet, and it would also rely on the same dependencies as Linux/BSD does, and you would need to build from the Linux/BSD source code on that platform. Includes Message Box with OK, OK/Cancel, Yes/No, Yes/No/Cancel, Retry/Cancel, Abort/Retry/Ignore, Input Box for strings and numbers, Password Box for strings and numbers, Open File, Multi-Select Files, Save File, Folder Browser, and Color Picker. The File Dialogs support Multiple Filters, each of which, may be selected from a drop-down box.
 
 ----------------------------------------------------------------------------------------------------------------------------------
 
