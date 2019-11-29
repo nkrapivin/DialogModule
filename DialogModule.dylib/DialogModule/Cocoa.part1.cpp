@@ -41,18 +41,18 @@ namespace dialog_module {
     string caption;
     string current_icon;
 
-    extern "C" int cocoa_show_message(const char* str, bool has_cancel, const char* icon, const char* title);
-    extern "C" int cocoa_show_question(const char* str, bool has_cancel, const char* icon, const char* title);
-    extern "C" int cocoa_show_attempt(const char* str, const char* icon, const char* title);
-    extern "C" int cocoa_show_error(const char* str, bool abort, const char* icon, const char* title);
-    extern "C" const char* cocoa_input_box(const char* str, const char* def, const char* icon, const char* title);
-    extern "C" const char* cocoa_password_box(const char* str, const char* def, const char* icon, const char* title);
-    extern "C" const char* cocoa_get_open_filename(const char* filter, const char* fname, const char* dir, const char* title, const bool mselect);
-    extern "C" const char* cocoa_get_save_filename(const char* filter, const char* fname, const char* dir, const char* title);
-    extern "C" const char* cocoa_get_directory(const char* capt, const char* root);
-    extern "C" int cocoa_get_color(int defcol, const char* title);
-    extern "C" void* cocoa_widget_get_owner();
-    extern "C" void cocoa_widget_set_owner(void* hwnd);
+    extern "C" int cocoa_show_message(const char *str, bool has_cancel, const char *icon, const char *title);
+    extern "C" int cocoa_show_question(const char *str, bool has_cancel, const char *icon, const char *title);
+    extern "C" int cocoa_show_attempt(const char *str, const char *icon, const char *title);
+    extern "C" int cocoa_show_error(const char *str, bool abort, const char *icon, const char *title);
+    extern "C" const char *cocoa_input_box(const char *str, const char *def, const char *icon, const char *title);
+    extern "C" const char *cocoa_password_box(const char *str, const char *def, const char *icon, const char *title);
+    extern "C" const char *cocoa_get_open_filename(const char *filter, const char *fname, const char *dir, const char *title, const bool mselect);
+    extern "C" const char *cocoa_get_save_filename(const char *filter, const char *fname, const char *dir, const char *title);
+    extern "C" const char *cocoa_get_directory(const char *capt, const char *root);
+    extern "C" int cocoa_get_color(int defcol, const char *title);
+    extern "C" void *cocoa_widget_get_owner();
+    extern "C" void cocoa_widget_set_owner(void *hwnd);
     
     string remove_trailing_zeros(double numb) {
       string strnumb = std::to_string(numb);
@@ -80,51 +80,51 @@ namespace dialog_module {
     
   } // anonymous namespace
   
-  int show_message(char* str) {
+  int show_message(char *str) {
     string str_str = str;
     return cocoa_show_message(str_str.c_str(), false, current_icon.c_str(), (caption == "") ? "Information" : caption.c_str());
   }
   
-  int show_message_cancelable(char* str) {
+  int show_message_cancelable(char *str) {
     string str_str = str;
     return cocoa_show_message(str_str.c_str(), true, current_icon.c_str(), (caption == "") ? "Question" : caption.c_str());
   }
   
-  int show_question(char* str) {
+  int show_question(char *str) {
     string str_str = str;
     return cocoa_show_question(str_str.c_str(), false, current_icon.c_str(), (caption == "") ? "Question" : caption.c_str());
   }
   
-  int show_question_cancelable(char* str) {
+  int show_question_cancelable(char *str) {
     string str_str = str;
     return cocoa_show_question(str_str.c_str(), true, current_icon.c_str(), (caption == "") ? "Question" : caption.c_str());
   }
   
-  int show_attempt(char* str) {
+  int show_attempt(char *str) {
     string str_str = str;
     return cocoa_show_attempt(str_str.c_str(), current_icon.c_str(), (caption == "") ? "Error" : caption.c_str());
   }
   
-  int show_error(char* str, bool abort) {
+  int show_error(char *str, bool abort) {
     string str_str = str;
     int result = cocoa_show_error(str_str.c_str(), abort, current_icon.c_str(), (caption == "") ? "Error" : caption.c_str());
     if (result == 1) exit(0);
     return result;
   }
   
-  char* get_string(char* str, char* def) {
+  char *get_string(char *str, char *def) {
     string str_str = str;
     string str_def = def;
-    return (char*)cocoa_input_box(str_str.c_str(), str_def.c_str(), current_icon.c_str(), (caption == "") ? "Input Query" : caption.c_str());
+    return (char *)cocoa_input_box(str_str.c_str(), str_def.c_str(), current_icon.c_str(), (caption == "") ? "Input Query" : caption.c_str());
   }
   
-  char* get_password(char* str, char* def) {
+  char *get_password(char *str, char *def) {
     string str_str = str;
     string str_def = def;
-    return (char*)cocoa_password_box(str_str.c_str(), str_def.c_str(), current_icon.c_str(), (caption == "") ? "Input Query" : caption.c_str());
+    return (char *)cocoa_password_box(str_str.c_str(), str_def.c_str(), current_icon.c_str(), (caption == "") ? "Input Query" : caption.c_str());
   }
   
-  double get_integer(char* str, double def) {
+  double get_integer(char *str, double def) {
     double DIGITS_MIN = -999999999999999;
     double DIGITS_MAX = 999999999999999;
 
@@ -141,7 +141,7 @@ namespace dialog_module {
     return result;
   }
   
-  double get_passcode(char* str, double def) {
+  double get_passcode(char *str, double def) {
     double DIGITS_MIN = -999999999999999;
     double DIGITS_MAX = 999999999999999;
 
@@ -158,95 +158,95 @@ namespace dialog_module {
     return result;
   }
   
-  char* get_open_filename(char* filter, char* fname) {
+  char *get_open_filename(char *filter, char *fname) {
     string str_filter = filter; string str_fname = fname; static string result;
     result = cocoa_get_open_filename(str_filter.c_str(), str_fname.c_str(), "", "", false);
-    return (char*)result.c_str();
+    return (char *)result.c_str();
   }
   
-  char* get_open_filename_ext(char* filter, char* fname, char* dir, char* title) {
+  char *get_open_filename_ext(char *filter, char *fname, char *dir, char *title) {
     string str_filter = filter; string str_fname = fname;
     string str_dir = dir; string str_title = title; static string result;
     result = cocoa_get_open_filename(str_filter.c_str(), str_fname.c_str(), str_dir.c_str(), str_title.c_str(), false);
-    return (char*)result.c_str();
+    return (char *)result.c_str();
   }
   
-  char* get_open_filenames(char* filter, char* fname) {
+  char *get_open_filenames(char *filter, char *fname) {
     string str_filter = filter; string str_fname = fname; static string result;
     result = cocoa_get_open_filename(str_filter.c_str(), str_fname.c_str(), "", "", true);
-    return (char*)result.c_str();
+    return (char *)result.c_str();
   }
   
-  char* get_open_filenames_ext(char* filter, char* fname, char* dir, char* title) {
+  char *get_open_filenames_ext(char *filter, char *fname, char *dir, char *title) {
     string str_filter = filter; string str_fname = fname;
     string str_dir = dir; string str_title = title; static string result;
     result = cocoa_get_open_filename(str_filter.c_str(), str_fname.c_str(), str_dir.c_str(), str_title.c_str(), true);
-    return (char*)result.c_str();
+    return (char *)result.c_str();
   }
   
-  char* get_save_filename(char* filter, char* fname) {
+  char *get_save_filename(char *filter, char *fname) {
     string str_filter = filter; string str_fname = fname; static string result;
     result = cocoa_get_save_filename(str_filter.c_str(), str_fname.c_str(), "", "");
-    return (char*)result.c_str();
+    return (char *)result.c_str();
   }
   
-  char* get_save_filename_ext(char* filter, char* fname, char* dir, char* title) {
+  char *get_save_filename_ext(char *filter, char *fname, char *dir, char *title) {
     string str_filter = filter; string str_fname = fname;
     string str_dir = dir; string str_title = title; static string result;
     result = cocoa_get_save_filename(str_filter.c_str(), str_fname.c_str(), str_dir.c_str(), str_title.c_str());
-    return (char*)result.c_str();
+    return (char *)result.c_str();
   }
   
-  char* get_directory(char* dname) {
+  char *get_directory(char *dname) {
     string str_dname = dname;  static string result;
     result = cocoa_get_directory("", str_dname.c_str());
-    return (char*)result.c_str();
+    return (char *)result.c_str();
   }
   
-  char* get_directory_alt(char* capt, char* root) {
+  char *get_directory_alt(char *capt, char *root) {
     string str_dname = root; string str_title = capt; static string result;
     result = cocoa_get_directory(str_title.c_str(), str_dname.c_str());
-    return (char*)result.c_str();
+    return (char *)result.c_str();
   }
   
   int get_color(int defcol) {
     return cocoa_get_color(defcol, "");
   }
   
-  int get_color_ext(int defcol, char* title) {
+  int get_color_ext(int defcol, char *title) {
     string str_title = title;
     return cocoa_get_color(defcol, str_title.c_str());
   }
   
-  char* widget_get_caption() {
-    return (char* )caption.c_str();
+  char *widget_get_caption() {
+    return (char *)caption.c_str();
   }
   
-  void widget_set_caption(char* str) {
+  void widget_set_caption(char *str) {
     caption = str;
   }
   
-  void* widget_get_owner() {
+  void *widget_get_owner() {
     return cocoa_widget_get_owner();
   }
   
-  void widget_set_owner(void* hwnd) {
+  void widget_set_owner(void *hwnd) {
     cocoa_widget_set_owner(hwnd);
   }
 
-  char* widget_get_icon() {
-    return (char*)current_icon.c_str();
+  char *widget_get_icon() {
+    return (char *)current_icon.c_str();
   }
 
-  void widget_set_icon(char* icon) {
+  void widget_set_icon(char *icon) {
     current_icon = filename_absolute(icon);
   }
   
-  char* widget_get_system() {
-    return (char*)"Cocoa";
+  char *widget_get_system() {
+    return (char *)"Cocoa";
   }
   
-  void widget_set_system(char* sys) {
+  void widget_set_system(char *sys) {
     
   }
   

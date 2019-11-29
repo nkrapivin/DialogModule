@@ -37,7 +37,7 @@ void cocoa_widget_set_owner(void *hwnd) {
   owner = hwnd;
 }
 
-int cocoa_show_message(const char *str, bool has_cancel, const char* icon, const char *title) {
+int cocoa_show_message(const char *str, bool has_cancel, const char *icon, const char *title) {
   NSWindow *parent = owner ? (NSWindow *)owner : [[NSApplication sharedApplication] mainWindow];
   NSString *myTitle = [NSString stringWithUTF8String:title];
   NSString *myStr = [NSString stringWithUTF8String:str];
@@ -61,7 +61,7 @@ int cocoa_show_message(const char *str, bool has_cancel, const char* icon, const
   return -1;
 }
 
-int cocoa_show_question(const char *str, bool has_cancel, const char* icon, const char *title) {
+int cocoa_show_question(const char *str, bool has_cancel, const char *icon, const char *title) {
   NSWindow *parent = owner ? (NSWindow *)owner : [[NSApplication sharedApplication] mainWindow];
   NSString *myTitle = [NSString stringWithUTF8String:title];
   NSString *myStr = [NSString stringWithUTF8String:str];
@@ -89,7 +89,7 @@ int cocoa_show_question(const char *str, bool has_cancel, const char* icon, cons
   return -1;
 }
 
-int cocoa_show_attempt(const char *str, const char* icon, const char *title) {
+int cocoa_show_attempt(const char *str, const char *icon, const char *title) {
   NSWindow *parent = owner ? (NSWindow *)owner : [[NSApplication sharedApplication] mainWindow];
   NSString *myStr = [NSString stringWithUTF8String:str];
   NSAlert *alert = [[NSAlert alloc] init];
@@ -115,7 +115,7 @@ int cocoa_show_attempt(const char *str, const char* icon, const char *title) {
   return -1;
 }
 
-int cocoa_show_error(const char *str, bool abort, const char* icon, const char *title) {
+int cocoa_show_error(const char *str, bool abort, const char *icon, const char *title) {
   NSWindow *parent = owner ? (NSWindow *)owner : [[NSApplication sharedApplication] mainWindow];
   NSString *myStr = [NSString stringWithUTF8String:str];
   NSAlert *alert = [[NSAlert alloc] init];
@@ -145,7 +145,7 @@ int cocoa_show_error(const char *str, bool abort, const char* icon, const char *
   return -1;
 }
 
-const char *cocoa_input_box(const char *str, const char *def, const char* icon, const char *title) {
+const char *cocoa_input_box(const char *str, const char *def, const char *icon, const char *title) {
   NSWindow *parent = owner ? (NSWindow *)owner : [[NSApplication sharedApplication] mainWindow];
   NSString *myTitle = [NSString stringWithUTF8String:title];
   NSString *myStr = [NSString stringWithUTF8String:str];
@@ -184,7 +184,7 @@ const char *cocoa_input_box(const char *str, const char *def, const char* icon, 
   return result;
 }
 
-const char *cocoa_password_box(const char *str, const char *def, const char* icon, const char *title) {
+const char *cocoa_password_box(const char *str, const char *def, const char *icon, const char *title) {
   NSWindow *parent = owner ? (NSWindow *)owner : [[NSApplication sharedApplication] mainWindow];
   NSString *myTitle = [NSString stringWithUTF8String:title];
   NSString *myStr = [NSString stringWithUTF8String:str];
