@@ -8,11 +8,11 @@ A simple, easy-to-use, cross-platform, dialog API, inspired by the GameMaker Lan
 
 # Platforms Supported and Features Included
 
-Windows, macOS, and Linux are supported. The Linux version has dependencies. Potentially BSD and Solaris can be supported, but no binaries for these platforms have been built, (or tested), yet, and they would also rely on the same dependencies as Linux does, and you would need to build from the Linux source code on those platforms. Includes Message Box with OK, OK/Cancel, Yes/No, Yes/No/Cancel, Retry/Cancel, Abort/Retry/Ignore, Input Box for strings and numbers, Password Box for strings and numbers, Open File, Multi-Select Files, Save File, Folder Browser, and Color Picker.
+Windows, macOS, Linux, and BSD are supported. The Linux and BSD versions have dependencies. Potentially Solaris can be supported, but no binaries for this platform has been built, (or tested), yet, and it would also rely on the same dependencies as Linux/BSD does, and you would need to build from the Linux/BSD source code on that platform. Includes Message Box with OK, OK/Cancel, Yes/No, Yes/No/Cancel, Retry/Cancel, Abort/Retry/Ignore, Input Box for strings and numbers, Password Box for strings and numbers, Open File, Multi-Select Files, Save File, Folder Browser, and Color Picker.
 
 ----------------------------------------------------------------------------------------------------------------------------------
 
-# Linux Dependency Option 1: GTK+ (Zenity)
+# Linux/BSD Dependency Option 1: GTK+ (Zenity)
 
 Debian-based Linux distributions: sudo apt-get install zenity
 
@@ -20,15 +20,19 @@ RedHat-based Linux distributions: sudo yum install zenity
 
 Arch-based Linux distributions: sudo pacman -S zenity
 
+FreeBSD-based BSD distributions: sudo pkg ins zenity
+
 ----------------------------------------------------------------------------------------------------------------------------------
 
-# Linux Dependency Option 2: KDE (KDialog)
+# Linux/BSD Dependency Option 2: KDE (KDialog)
 
 Debian-based Linux distributions: sudo apt-get install kdialog
 
 RedHat-based Linux distributions: sudo yum install kdialog
 
 Arch-based Linux distributions: sudo pacman -S kdialog
+
+FreeBSD-based BSD distributions: sudo pkg ins kdialog
 
 ----------------------------------------------------------------------------------------------------------------------------------
 
