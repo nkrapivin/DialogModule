@@ -12,7 +12,7 @@ Windows, macOS, Linux, and BSD are supported. The Linux and BSD versions have de
 
 ----------------------------------------------------------------------------------------------------------------------------------
 
-# Linux/BSD Dependency Option 1: GTK+ (Zenity)
+# Linux/BSD Dependency Option 1: GTK (Zenity)
 
 Debian-based Linux distributions: sudo apt-get install zenity
 
@@ -24,7 +24,7 @@ FreeBSD-based BSD distributions: sudo pkg ins zenity
 
 ----------------------------------------------------------------------------------------------------------------------------------
 
-# Linux/BSD Dependency Option 2: KDE (KDialog)
+# Linux/BSD Dependency Option 2: Qt (KDialog)
 
 Debian-based Linux distributions: sudo apt-get install kdialog
 
