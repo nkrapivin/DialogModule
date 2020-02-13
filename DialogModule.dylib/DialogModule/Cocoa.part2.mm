@@ -29,6 +29,11 @@
 
 void *owner = NULL;
 
+void update_child_window_status(NSWindow *child, NSWindow *parent) {
+  if (parent != nil && [child parentWindow] == parent)
+    [parent removeChildWindow:child];
+}
+
 void *cocoa_widget_get_owner() {
   return owner;
 }
@@ -327,6 +332,7 @@ const char *cocoa_get_open_filename(const char *filter, const char *fname, const
   }
 
   for (;;) {
+    update_child_window_status(oFilePanel, parent);
     if ([NSApp runModalSession:openSession] == NSModalResponseOK) {
       NSURL *theOpenURL;
       NSString *theOpenFile;
@@ -481,6 +487,7 @@ const char *cocoa_get_save_filename(const char *filter, const char *fname, const
   }
 
   for (;;) {
+    update_child_window_status(sFilePanel, parent);
     if ([NSApp runModalSession:saveSession] == NSModalResponseOK) {
       NSURL *theSaveURL = [sFilePanel URL];
       NSString *theSaveFile = [theSaveURL path];
@@ -547,6 +554,7 @@ const char *cocoa_get_directory(const char *capt, const char *root) {
   }
     
   for (;;) {
+    update_child_window_status(dirPanel, parent);
     if ([NSApp runModalSession:dirSession] == NSModalResponseOK) {
       NSURL *theFolderURL = [[dirPanel URLs] objectAtIndex:0];
       NSString *theFolderPath = [theFolderURL path];
@@ -639,6 +647,7 @@ int cocoa_get_color(int defcol, const char *title) {
   bool colorOKPressed = false;
 
   for (;;) {
+    update_child_window_status(myColorPanel, parent);
     if ([NSApp runModalSession:colorSession] != NSModalResponseContinue)
       break;
     
