@@ -58,8 +58,7 @@
 #include <sys/stat.h>
 #include <libgen.h>
 #include <unistd.h>
-
-#include <iostream>
+#include <signal.h>
 
 using std::string;
 
