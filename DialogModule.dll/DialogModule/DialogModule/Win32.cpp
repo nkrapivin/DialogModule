@@ -602,7 +602,7 @@ namespace dialog_module {
 
   int show_message_cancelable(char *str) {
     DWORD ThreadID = GetCurrentThreadId();
-  HINSTANCE ModHwnd = GetModuleHandle(NULL);
+    HINSTANCE ModHwnd = GetModuleHandle(NULL);
     hook_handle = SetWindowsHookEx(WH_CBT, &DialogProc, ModHwnd, ThreadID);
     int result = show_message_helper(str, true);
     UnhookWindowsHookEx(hook_handle);
