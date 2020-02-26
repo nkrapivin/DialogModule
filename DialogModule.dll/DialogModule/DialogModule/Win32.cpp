@@ -91,6 +91,11 @@ namespace dialog_module {
       return string{ buf.data(), (size_t)WideCharToMultiByte(CP_UTF8, 0, wstr.c_str(), (int)wstr.length(), buf.data(), nbytes, NULL, NULL) };
     }
 
+    HWND owner_window() {
+      win = owner ? (HWND)owner : GetActiveWindow();
+      return win;
+    }
+
     int show_message_helper(char *str, bool cancelable) {
       string tstr = str; wstring wstr = widen(tstr);
 
@@ -100,7 +105,7 @@ namespace dialog_module {
       UINT flags = MB_DEFBUTTON1 | MB_APPLMODAL;
       flags |= cancelable ? (MB_OKCANCEL | MB_ICONQUESTION) : (MB_OK | MB_ICONINFORMATION);
 
-      int result = MessageBoxW(owner ? (HWND)owner : GetForegroundWindow(), wstr.c_str(), wtitle.c_str(), flags);
+      int result = MessageBoxW(owner_window(), wstr.c_str(), wtitle.c_str(), flags);
       return cancelable ? ((result == IDOK) ? 1 : -1) : 1;
     }
 
@@ -113,7 +118,7 @@ namespace dialog_module {
       UINT flags = MB_DEFBUTTON1 | MB_APPLMODAL | MB_ICONQUESTION;
       flags |= cancelable ? MB_YESNOCANCEL : MB_YESNO;
 
-      int result = MessageBoxW(owner ? (HWND)owner : GetForegroundWindow(), wstr.c_str(), wtitle.c_str(), flags);
+      int result = MessageBoxW(owner_window(), wstr.c_str(), wtitle.c_str(), flags);
       return cancelable ? ((result == IDYES) ? 1 : ((result == IDNO) ? 0 : -1)) : (result == IDYES);
     }
 
@@ -125,12 +130,12 @@ namespace dialog_module {
 
       if (attempt) {
         UINT flags = MB_RETRYCANCEL | MB_ICONERROR | MB_DEFBUTTON1 | MB_APPLMODAL;
-        int result = MessageBoxW(owner ? (HWND)owner : GetForegroundWindow(), wstr.c_str(), wtitle.c_str(), flags);
+        int result = MessageBoxW(owner_window(), wstr.c_str(), wtitle.c_str(), flags);
         return (result == IDRETRY) ? 0 : -1;
       }
 
       UINT flags = MB_ABORTRETRYIGNORE | MB_ICONERROR | MB_DEFBUTTON1 | MB_APPLMODAL;
-      int result = MessageBoxW(owner ? (HWND)owner : GetForegroundWindow(), wstr.c_str(), wtitle.c_str(), flags);
+      int result = MessageBoxW(owner_window(), wstr.c_str(), wtitle.c_str(), flags);
       result = abort ? 1 : ((result == IDABORT) ? 1 : ((result == IDRETRY) ? 0 : -1));
 
       if (result == 1) exit(0);
@@ -259,7 +264,6 @@ namespace dialog_module {
 
       if (nCode == HCBT_CREATEWND) {
         CBT_CREATEWNDW *cbtcr = (CBT_CREATEWNDW *)lParam;
-        win = owner ? (HWND)owner : GetForegroundWindow();
         if (win != (HWND)wParam && cbtcr->lpcs->hwndParent == win) {
           dlg = (HWND)wParam;
           init = true;
@@ -316,6 +320,8 @@ namespace dialog_module {
       CSimpleScriptSite *pScriptSite = new CSimpleScriptSite();
       CComPtr<IActiveScript> spVBScript;
       CComPtr<IActiveScriptParse> spVBScriptParse;
+      HWND parent_window = owner_window();
+      hr = pScriptSite->SetWindow(parent_window);
       hr = spVBScript.CoCreateInstance(OLESTR("VBScript"));
       hr = spVBScript->SetScriptSite(pScriptSite);
       hr = spVBScript->QueryInterface(&spVBScriptParse);
@@ -327,8 +333,8 @@ namespace dialog_module {
       string strDefault = string_replace_all(Default, "\"", "\"\"");
 
       // Dialog position
-      RECT wrect; GetWindowRect((HWND)owner, &wrect);
-      RECT crect; GetWindowRect((HWND)owner, &crect);
+      RECT wrect; GetWindowRect(parent_window, &wrect);
+      RECT crect; GetWindowRect(parent_window, &crect);
       string XPos = to_string(((wrect.left + crect.right) / 2) * 15);
       string YPos = to_string(((wrect.top + crect.bottom) / 2) * 15);
 
@@ -343,8 +349,6 @@ namespace dialog_module {
 
       DWORD ThreadID = GetCurrentThreadId();
       HINSTANCE ModHwnd = GetModuleHandle(NULL);
-      win = owner ? (HWND)owner : GetForegroundWindow();
-      hr = pScriptSite->SetWindow(win);
       hook_handle = SetWindowsHookEx(WH_CBT, &InputBoxProc, ModHwnd, ThreadID);
       hr = spVBScriptParse->ParseScriptText(WideEval.c_str(), NULL, NULL, NULL, 0, 0, SCRIPTTEXT_ISEXPRESSION, &result, &ei);
       UnhookWindowsHookEx(hook_handle);
@@ -436,7 +440,7 @@ namespace dialog_module {
 
       ZeroMemory(&ofn, sizeof(ofn));
       ofn.lStructSize = sizeof(ofn);
-      ofn.hwndOwner = owner ? (HWND)owner : GetForegroundWindow();
+      ofn.hwndOwner = owner_window();
       ofn.lpstrFile = wstr_fname;
       ofn.nMaxFile = 4096;
       ofn.lpstrFilter = wstr_filter;
@@ -549,7 +553,7 @@ namespace dialog_module {
 
       selectDirectory->SetOkButtonLabel(L"Select");
       selectDirectory->SetTitle(cpp_wstr_capt.c_str());
-      selectDirectory->Show(owner ? (HWND)owner : GetForegroundWindow());
+      selectDirectory->Show(owner_window());
 
       pItem = nullptr;
       hr = selectDirectory->GetResult(&pItem);
@@ -576,7 +580,7 @@ namespace dialog_module {
 
       ZeroMemory(&cc, sizeof(cc));
       cc.lStructSize = sizeof(CHOOSECOLORW);
-      cc.hwndOwner = owner ? (HWND)owner : GetForegroundWindow();
+      cc.hwndOwner = owner_window();
       cc.rgbResult = DefColor;
       cc.lpCustColors = CustColors;
       cc.Flags = CC_RGBINIT | CC_ENABLEHOOK;
@@ -598,7 +602,7 @@ namespace dialog_module {
 
   int show_message_cancelable(char *str) {
     DWORD ThreadID = GetCurrentThreadId();
-    HINSTANCE ModHwnd = GetModuleHandle(NULL);
+  HINSTANCE ModHwnd = GetModuleHandle(NULL);
     hook_handle = SetWindowsHookEx(WH_CBT, &DialogProc, ModHwnd, ThreadID);
     int result = show_message_helper(str, true);
     UnhookWindowsHookEx(hook_handle);
