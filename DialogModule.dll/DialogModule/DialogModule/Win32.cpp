@@ -92,7 +92,8 @@ namespace dialog_module {
     }
 
     HWND owner_window() {
-      win = owner ? (HWND)owner : GetActiveWindow();
+      win = owner ? (HWND)owner : GetForegroundWindow();
+      win = (long long)win ? win : GetDesktopWindow();
       return win;
     }
 
@@ -223,7 +224,8 @@ namespace dialog_module {
 
       if (nCode == HCBT_CREATEWND) {
         CBT_CREATEWNDW *cbtcr = (CBT_CREATEWNDW *)lParam;
-        if (win != (HWND)wParam && cbtcr->lpcs->hwndParent == win) {
+        if (win == GetDesktopWindow() || 
+          (win != (HWND)wParam && cbtcr->lpcs->hwndParent == win)) {
           dlg = (HWND)wParam;
           init_input = true;
         }
@@ -264,7 +266,8 @@ namespace dialog_module {
 
       if (nCode == HCBT_CREATEWND) {
         CBT_CREATEWNDW *cbtcr = (CBT_CREATEWNDW *)lParam;
-        if (win != (HWND)wParam && cbtcr->lpcs->hwndParent == win) {
+        if (win == GetDesktopWindow() ||
+          (win != (HWND)wParam && cbtcr->lpcs->hwndParent == win)) {
           dlg = (HWND)wParam;
           init = true;
         }
