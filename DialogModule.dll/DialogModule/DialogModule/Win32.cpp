@@ -224,6 +224,7 @@ namespace dialog_module {
 
       if (nCode == HCBT_CREATEWND) {
         CBT_CREATEWNDW *cbtcr = (CBT_CREATEWNDW *)lParam;
+        EnableWindow(win, true);
         if (win == GetDesktopWindow() || 
           (win != (HWND)wParam && cbtcr->lpcs->hwndParent == win)) {
           dlg = (HWND)wParam;
@@ -266,6 +267,7 @@ namespace dialog_module {
 
       if (nCode == HCBT_CREATEWND) {
         CBT_CREATEWNDW *cbtcr = (CBT_CREATEWNDW *)lParam;
+        EnableWindow(win, true);
         if (win == GetDesktopWindow() ||
           (win != (HWND)wParam && cbtcr->lpcs->hwndParent == win)) {
           dlg = (HWND)wParam;
