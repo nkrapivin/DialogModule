@@ -280,7 +280,8 @@ double show_message(char *str) {
 
 double show_message_async(char *str) {
   unsigned id = dialog_identifier++;
-  std::thread dialog_thread(show_message_threaded, str, id);
+  static std::string str_str = str;
+  std::thread dialog_thread(show_message_threaded, (char *)str_str.c_str(), id);
   dialog_thread.detach();
   return (double)id;
 }
@@ -291,7 +292,8 @@ double show_message_cancelable(char *str) {
 
 double show_message_cancelable_async(char *str) {
   unsigned id = dialog_identifier++;
-  std::thread dialog_thread(show_message_cancelable_threaded, str, id);
+  static std::string str_str = str;
+  std::thread dialog_thread(show_message_cancelable_threaded, (char *)str_str.c_str(), id);
   dialog_thread.detach();
   return (double)id;
 }
@@ -302,7 +304,8 @@ double show_question(char *str) {
 
 double show_question_async(char *str) {
   unsigned id = dialog_identifier++;
-  std::thread dialog_thread(show_question_threaded, str, id);
+  static std::string str_str = str;
+  std::thread dialog_thread(show_question_threaded, (char *)str_str.c_str(), id);
   dialog_thread.detach();
   return (double)id;
 }
@@ -313,7 +316,8 @@ double show_question_cancelable(char *str) {
 
 double show_question_cancelable_async(char *str) {
   unsigned id = dialog_identifier++;
-  std::thread dialog_thread(show_question_cancelable_threaded, str, id);
+  static std::string str_str = str;
+  std::thread dialog_thread(show_question_cancelable_threaded, (char *)str_str.c_str(), id);
   dialog_thread.detach();
   return (double)id;
 }
@@ -324,7 +328,8 @@ double show_attempt(char *str) {
 
 double show_attempt_async(char *str) {
   unsigned id = dialog_identifier++;
-  std::thread dialog_thread(show_attempt_threaded, str, id);
+  static std::string str_str = str;
+  std::thread dialog_thread(show_attempt_threaded, (char *)str_str.c_str(), id);
   dialog_thread.detach();
   return (double)id;
 }
@@ -335,7 +340,8 @@ double show_error(char *str, double abort) {
 
 double show_error_async(char *str, double abort) {
   unsigned id = dialog_identifier++;
-  std::thread dialog_thread(show_error_threaded, str, abort, id);
+  static std::string str_str = str;
+  std::thread dialog_thread(show_error_threaded, (char *)str_str.c_str(), abort, id);
   dialog_thread.detach();
   return (double)id;
 }
@@ -346,7 +352,9 @@ char *get_string(char *str, char *def) {
 
 double get_string_async(char *str, char *def) {
   unsigned id = dialog_identifier++;
-  std::thread dialog_thread(get_string_threaded, str, def, id);
+  static std::string str_str = str;
+  static std::string str_def = def;
+  std::thread dialog_thread(get_string_threaded, (char *)str_str.c_str(), (char *)str_def.c_str(), id);
   dialog_thread.detach();
   return (double)id;
 }
@@ -357,7 +365,9 @@ char *get_password(char *str, char *def) {
 
 double get_password_async(char *str, char *def) {
   unsigned id = dialog_identifier++;
-  std::thread dialog_thread(get_password_threaded, str, def, id);
+  static std::string str_str = str;
+  static std::string str_def = def;
+  std::thread dialog_thread(get_password_threaded, (char *)str_str.c_str(), (char *)str_def.c_str(), id);
   dialog_thread.detach();
   return (double)id;
 }
@@ -368,7 +378,8 @@ double get_integer(char *str, double def) {
 
 double get_integer_async(char *str, double def) {
   unsigned id = dialog_identifier++;
-  std::thread dialog_thread(get_integer_threaded, str, def, id);
+  static std::string str_str = str;
+  std::thread dialog_thread(get_integer_threaded, (char *)str_str.c_str(), def, id);
   dialog_thread.detach();
   return (double)id;
 }
@@ -379,7 +390,8 @@ double get_passcode(char *str, double def) {
 
 double get_passcode_async(char *str, double def) {
   unsigned id = dialog_identifier++;
-  std::thread dialog_thread(get_passcode_threaded, str, def, id);
+  static std::string str_str = str;
+  std::thread dialog_thread(get_passcode_threaded, (char *)str_str.c_str(), def, id);
   dialog_thread.detach();
   return (double)id;
 }
@@ -390,7 +402,9 @@ char *get_open_filename(char *filter, char *fname) {
 
 double get_open_filename_async(char *filter, char *fname) {
   unsigned id = dialog_identifier++;
-  std::thread dialog_thread(get_open_filename_threaded, filter, fname, id);
+  static std::string str_filter = filter;
+  static std::string str_fname = fname;
+  std::thread dialog_thread(get_open_filename_threaded, (char *)str_filter.c_str(), (char *)str_fname.c_str(), id);
   dialog_thread.detach();
   return (double)id;
 }
@@ -401,7 +415,11 @@ char *get_open_filename_ext(char *filter, char *fname, char *dir, char *title) {
 
 double get_open_filename_ext_async(char *filter, char *fname, char *dir, char *title) {
   unsigned id = dialog_identifier++;
-  std::thread dialog_thread(get_open_filename_ext_threaded, filter, fname, dir, title, id);
+  static std::string str_filter = filter;
+  static std::string str_fname = fname;
+  static std::string str_dir = dir;
+  static std::string str_title = title;
+  std::thread dialog_thread(get_open_filename_ext_threaded, (char *)str_filter.c_str(), (char *)str_fname.c_str(), (char *)str_dir.c_str(), (char *)str_title.c_str(), id);
   dialog_thread.detach();
   return (double)id;
 }
@@ -412,7 +430,9 @@ char *get_open_filenames(char *filter, char *fname) {
 
 double get_open_filenames_async(char *filter, char *fname) {
   unsigned id = dialog_identifier++;
-  std::thread dialog_thread(get_open_filenames_threaded, filter, fname, id);
+  static std::string str_filter = filter;
+  static std::string str_fname = fname;
+  std::thread dialog_thread(get_open_filenames_threaded, (char *)str_filter.c_str(), (char *)str_fname.c_str(), id);
   dialog_thread.detach();
   return (double)id;
 }
@@ -423,7 +443,11 @@ char *get_open_filenames_ext(char *filter, char *fname, char *dir, char *title) 
 
 double get_open_filenames_ext_async(char *filter, char *fname, char *dir, char *title) {
   unsigned id = dialog_identifier++;
-  std::thread dialog_thread(get_open_filenames_ext_threaded, filter, fname, dir, title, id);
+  static std::string str_filter = filter;
+  static std::string str_fname = fname;
+  static std::string str_dir = dir;
+  static std::string str_title = title;
+  std::thread dialog_thread(get_open_filenames_ext_threaded, (char *)str_filter.c_str(), (char *)str_fname.c_str(), (char *)str_dir.c_str(), (char *)str_title.c_str(), id);
   dialog_thread.detach();
   return (double)id;
 }
@@ -434,7 +458,9 @@ char *get_save_filename(char *filter, char *fname) {
 
 double get_save_filename_async(char *filter, char *fname) {
   unsigned id = dialog_identifier++;
-  std::thread dialog_thread(get_save_filename_threaded, filter, fname, id);
+  static std::string str_filter = filter;
+  static std::string str_fname = fname;
+  std::thread dialog_thread(get_save_filename_threaded, (char *)str_filter.c_str(), (char *)str_fname.c_str(), id);
   dialog_thread.detach();
   return (double)id;
 }
@@ -445,7 +471,11 @@ char *get_save_filename_ext(char *filter, char *fname, char *dir, char *title) {
 
 double get_save_filename_ext_async(char *filter, char *fname, char *dir, char *title) {
   unsigned id = dialog_identifier++;
-  std::thread dialog_thread(get_save_filename_ext_threaded, filter, fname, dir, title, id);
+  static std::string str_filter = filter;
+  static std::string str_fname  = fname;
+  static std::string str_dir    = dir;
+  static std::string str_title  = title;
+  std::thread dialog_thread(get_save_filename_ext_threaded, (char *)str_filter.c_str(), (char *)str_fname.c_str(), (char *)str_dir.c_str(), (char *)str_title.c_str(), id);
   dialog_thread.detach();
   return (double)id;
 }
@@ -456,7 +486,8 @@ char *get_directory(char *dname) {
 
 double get_directory_async(char *dname) {
   unsigned id = dialog_identifier++;
-  std::thread dialog_thread(get_directory_threaded, dname, id);
+  static std::string str_dname = dname;
+  std::thread dialog_thread(get_directory_threaded, (char *)str_dname.c_str(), id);
   dialog_thread.detach();
   return (double)id;
 }
@@ -467,7 +498,9 @@ char *get_directory_alt(char *capt, char *root) {
 
 double get_directory_alt_async(char *capt, char *root) {
   unsigned id = dialog_identifier++;
-  std::thread dialog_thread(get_directory_alt_threaded, capt, root, id);
+  static std::string str_capt = capt;
+  static std::string str_root = root;
+  std::thread dialog_thread(get_directory_alt_threaded, (char *)str_capt.c_str(), (char *)str_root.c_str(), id);
   dialog_thread.detach();
   return (double)id;
 }
@@ -489,7 +522,8 @@ double get_color_ext(double defcol, char *title) {
 
 double get_color_ext_async(double defcol, char *title) {
   unsigned id = dialog_identifier++;
-  std::thread dialog_thread(get_color_ext_threaded, (int)defcol, title, id);
+  static std::string str_title = title;
+  std::thread dialog_thread(get_color_ext_threaded, (int)defcol, (char *)str_title.c_str(), id);
   dialog_thread.detach();
   return (double)id;
 }
