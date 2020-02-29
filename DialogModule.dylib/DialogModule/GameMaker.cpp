@@ -41,18 +41,102 @@ int(*CreateDsMap)(int _num, ...);
 bool(*DsMapAddDouble)(int _index, char *_pKey, double value);
 bool(*DsMapAddString)(int _index, char *_pKey, char *pVal);
 
-void threaded_double_result_helper(double id, double result) {
+void threaded_double_result_helper(double id, double func) {
+  double result = func;
   int resultMap = CreateDsMap(0);
-  DsMapAddDouble(resultMap, (char *)"id", (double)id);
-  DsMapAddDouble(resultMap, (char *)"status", (double)result);
+  DsMapAddDouble(resultMap, (char *)"id", id);
+  DsMapAddDouble(resultMap, (char *)"status", 1);
+  DsMapAddDouble(resultMap, (char *)"result", result);
   CreateAsynEventWithDSMap(resultMap, 70);
 }
 
-void threaded_string_result_helper(double id, char *result) {
+void threaded_string_result_helper(double id, char *func) {
+  char *result = func;
   int resultMap = CreateDsMap(0);
-  DsMapAddDouble(resultMap, (char *)"id", (double)id);
-  DsMapAddString(resultMap, (char *)"status", (char *)result);
+  DsMapAddDouble(resultMap, (char *)"id", id);
+  DsMapAddDouble(resultMap, (char *)"status", 1);
+  DsMapAddString(resultMap, (char *)"result", result);
   CreateAsynEventWithDSMap(resultMap, 70);
+}
+
+void show_message_threaded(char *str, unsigned id) {
+  threaded_double_result_helper(id, dialog_module::show_message(str));
+}
+
+void show_message_cancelable_threaded(char *str, unsigned id) {
+  threaded_double_result_helper(id, dialog_module::show_message_cancelable(str));
+}
+
+void show_question_threaded(char *str, unsigned id) {
+  threaded_double_result_helper(id, dialog_module::show_question(str));
+}
+
+void show_question_cancelable_threaded(char *str, unsigned id) {
+  threaded_double_result_helper(id, dialog_module::show_question_cancelable(str));
+}
+
+void show_attempt_threaded(char *str, unsigned id) {
+  threaded_double_result_helper(id, dialog_module::show_attempt(str));
+}
+
+void show_error_threaded(char *str, double abort, unsigned id) {
+  threaded_double_result_helper(id, dialog_module::show_error(str, abort));
+}
+
+void get_string_threaded(char *str, char *def, unsigned id) {
+  threaded_string_result_helper(id, dialog_module::get_string(str, def));
+}
+
+void get_password_threaded(char *str, char *def, unsigned id) {
+  threaded_string_result_helper(id, dialog_module::get_password(str, def));
+}
+
+void get_integer_threaded(char *str, double def, unsigned id) {
+  threaded_double_result_helper(id, dialog_module::get_integer(str, def));
+}
+
+void get_passcode_threaded(char *str, double def, unsigned id) {
+  threaded_double_result_helper(id, dialog_module::get_passcode(str, def));
+}
+
+void get_open_filename_threaded(char *filter, char *fname, unsigned id) {
+  threaded_string_result_helper(id, dialog_module::get_open_filename(filter, fname));
+}
+
+void get_open_filename_ext_threaded(char *filter, char *fname, char *dir, char *title, unsigned id) {
+  threaded_string_result_helper(id, dialog_module::get_open_filename_ext(filter, fname, dir, title));
+}
+
+void get_open_filenames_threaded(char *filter, char *fname, unsigned id) {
+  threaded_string_result_helper(id, dialog_module::get_open_filenames(filter, fname));
+}
+
+void get_open_filenames_ext_threaded(char *filter, char *fname, char *dir, char *title, unsigned id) {
+  threaded_string_result_helper(id, dialog_module::get_open_filenames_ext(filter, fname, dir, title));
+}
+
+void get_save_filename_threaded(char *filter, char *fname, unsigned id) {
+  threaded_string_result_helper(id, dialog_module::get_save_filename(filter, fname));
+}
+
+void get_save_filename_ext_threaded(char *filter, char *fname, char *dir, char *title, unsigned id) {
+  threaded_string_result_helper(id, dialog_module::get_save_filename_ext(filter, fname, dir, title));
+}
+
+void get_directory_threaded(char *dname, unsigned id) {
+  threaded_string_result_helper(id, dialog_module::get_directory(dname));
+}
+
+void get_directory_alt_threaded(char *capt, char *root, unsigned id) {
+  threaded_string_result_helper(id, dialog_module::get_directory_alt(capt, root));
+}
+
+void get_color_threaded(double defcol, unsigned id) {
+  threaded_double_result_helper(id, dialog_module::get_color((int)defcol));
+}
+
+void get_color_ext_threaded(double defcol, char *title, unsigned id) {
+  threaded_double_result_helper(id, dialog_module::get_color_ext((int)defcol, title));
 }
 
 } // anonymous namespace
@@ -113,7 +197,7 @@ double show_message(char *str) {
 
 double show_message_async(char *str) {
   unsigned id = dialog_identifier++;
-  std::thread dialog_thread(threaded_double_result_helper, id, dialog_module::show_message(str));
+  std::thread dialog_thread(show_message_threaded, str, id);
   dialog_thread.detach();
   return (double)id;
 }
@@ -124,7 +208,7 @@ double show_message_cancelable(char *str) {
 
 double show_message_cancelable_async(char *str) {
   unsigned id = dialog_identifier++;
-  std::thread dialog_thread(threaded_double_result_helper, id, dialog_module::show_message_cancelable(str));
+  std::thread dialog_thread(show_message_cancelable_threaded, str, id);
   dialog_thread.detach();
   return (double)id;
 }
@@ -135,7 +219,7 @@ double show_question(char *str) {
 
 double show_question_async(char *str) {
   unsigned id = dialog_identifier++;
-  std::thread dialog_thread(threaded_double_result_helper, id, dialog_module::show_question(str));
+  std::thread dialog_thread(show_question_threaded, str, id);
   dialog_thread.detach();
   return (double)id;
 }
@@ -146,7 +230,7 @@ double show_question_cancelable(char *str) {
 
 double show_question_cancelable_async(char *str) {
   unsigned id = dialog_identifier++;
-  std::thread dialog_thread(threaded_double_result_helper, id, dialog_module::show_question_cancelable(str));
+  std::thread dialog_thread(show_question_cancelable_threaded, str, id);
   dialog_thread.detach();
   return (double)id;
 }
@@ -157,7 +241,7 @@ double show_attempt(char *str) {
 
 double show_attempt_async(char *str) {
   unsigned id = dialog_identifier++;
-  std::thread dialog_thread(threaded_double_result_helper, id, dialog_module::show_attempt(str));
+  std::thread dialog_thread(show_attempt_threaded, str, id);
   dialog_thread.detach();
   return (double)id;
 }
@@ -168,7 +252,7 @@ double show_error(char *str, double abort) {
 
 double show_error_async(char *str, double abort) {
   unsigned id = dialog_identifier++;
-  std::thread dialog_thread(threaded_double_result_helper, id, dialog_module::show_error(str, abort));
+  std::thread dialog_thread(show_error_threaded, str, abort, id);
   dialog_thread.detach();
   return (double)id;
 }
@@ -179,7 +263,7 @@ char *get_string(char *str, char *def) {
 
 double get_string_async(char *str, char *def) {
   unsigned id = dialog_identifier++;
-  std::thread dialog_thread(threaded_string_result_helper, id, dialog_module::get_string(str, def));
+  std::thread dialog_thread(get_string_threaded, str, def, id);
   dialog_thread.detach();
   return (double)id;
 }
@@ -190,7 +274,7 @@ char *get_password(char *str, char *def) {
 
 double get_password_async(char *str, char *def) {
   unsigned id = dialog_identifier++;
-  std::thread dialog_thread(threaded_string_result_helper, id, dialog_module::get_password(str, def));
+  std::thread dialog_thread(get_password_threaded, str, def, id);
   dialog_thread.detach();
   return (double)id;
 }
@@ -201,7 +285,7 @@ double get_integer(char *str, double def) {
 
 double get_integer_async(char *str, double def) {
   unsigned id = dialog_identifier++;
-  std::thread dialog_thread(threaded_double_result_helper, id, dialog_module::get_integer(str, def));
+  std::thread dialog_thread(get_integer_threaded, str, def, id);
   dialog_thread.detach();
   return (double)id;
 }
@@ -212,7 +296,7 @@ double get_passcode(char *str, double def) {
 
 double get_passcode_async(char *str, double def) {
   unsigned id = dialog_identifier++;
-  std::thread dialog_thread(threaded_double_result_helper, id, dialog_module::get_passcode(str, def));
+  std::thread dialog_thread(get_passcode_threaded, str, def, id);
   dialog_thread.detach();
   return (double)id;
 }
@@ -223,7 +307,7 @@ char *get_open_filename(char *filter, char *fname) {
 
 double get_open_filename_async(char *filter, char *fname) {
   unsigned id = dialog_identifier++;
-  std::thread dialog_thread(threaded_string_result_helper, id, dialog_module::get_open_filename(filter, fname));
+  std::thread dialog_thread(get_open_filename_threaded, filter, fname, id);
   dialog_thread.detach();
   return (double)id;
 }
@@ -234,7 +318,7 @@ char *get_open_filename_ext(char *filter, char *fname, char *dir, char *title) {
 
 double get_open_filename_ext_async(char *filter, char *fname, char *dir, char *title) {
   unsigned id = dialog_identifier++;
-  std::thread dialog_thread(threaded_string_result_helper, id, dialog_module::get_open_filename_ext(filter, fname, dir, title));
+  std::thread dialog_thread(get_open_filename_ext_threaded, filter, fname, dir, title, id);
   dialog_thread.detach();
   return (double)id;
 }
@@ -245,7 +329,7 @@ char *get_open_filenames(char *filter, char *fname) {
 
 double get_open_filenames_async(char *filter, char *fname) {
   unsigned id = dialog_identifier++;
-  std::thread dialog_thread(threaded_string_result_helper, id, dialog_module::get_open_filenames(filter, fname));
+  std::thread dialog_thread(get_open_filenames_threaded, filter, fname, id);
   dialog_thread.detach();
   return (double)id;
 }
@@ -256,7 +340,7 @@ char *get_open_filenames_ext(char *filter, char *fname, char *dir, char *title) 
 
 double get_open_filenames_ext_async(char *filter, char *fname, char *dir, char *title) {
   unsigned id = dialog_identifier++;
-  std::thread dialog_thread(threaded_string_result_helper, id, dialog_module::get_open_filenames_ext(filter, fname, dir, title));
+  std::thread dialog_thread(get_open_filenames_ext_threaded, filter, fname, dir, title, id);
   dialog_thread.detach();
   return (double)id;
 }
@@ -267,7 +351,7 @@ char *get_save_filename(char *filter, char *fname) {
 
 double get_save_filename_async(char *filter, char *fname) {
   unsigned id = dialog_identifier++;
-  std::thread dialog_thread(threaded_string_result_helper, id, dialog_module::get_save_filename(filter, fname));
+  std::thread dialog_thread(get_save_filename_threaded, filter, fname, id);
   dialog_thread.detach();
   return (double)id;
 }
@@ -278,7 +362,7 @@ char *get_save_filename_ext(char *filter, char *fname, char *dir, char *title) {
 
 double get_save_filename_ext_async(char *filter, char *fname, char *dir, char *title) {
   unsigned id = dialog_identifier++;
-  std::thread dialog_thread(threaded_string_result_helper, id, dialog_module::get_save_filename_ext(filter, fname, dir, title));
+  std::thread dialog_thread(get_save_filename_ext_threaded, filter, fname, dir, title, id);
   dialog_thread.detach();
   return (double)id;
 }
@@ -289,7 +373,7 @@ char *get_directory(char *dname) {
 
 double get_directory_async(char *dname) {
   unsigned id = dialog_identifier++;
-  std::thread dialog_thread(threaded_string_result_helper, id, dialog_module::get_directory(dname));
+  std::thread dialog_thread(get_directory_threaded, dname, id);
   dialog_thread.detach();
   return (double)id;
 }
@@ -300,7 +384,7 @@ char *get_directory_alt(char *capt, char *root) {
 
 double get_directory_alt_async(char *capt, char *root) {
   unsigned id = dialog_identifier++;
-  std::thread dialog_thread(threaded_string_result_helper, id, dialog_module::get_directory_alt(capt, root));
+  std::thread dialog_thread(get_directory_alt_threaded, capt, root, id);
   dialog_thread.detach();
   return (double)id;
 }
@@ -311,7 +395,7 @@ double get_color(double defcol) {
 
 double get_color_async(double defcol) {
   unsigned id = dialog_identifier++;
-  std::thread dialog_thread(threaded_double_result_helper, id, dialog_module::get_color((int)defcol));
+  std::thread dialog_thread(get_color_threaded, (int)defcol, id);
   dialog_thread.detach();
   return (double)id;
 }
@@ -322,7 +406,7 @@ double get_color_ext(double defcol, char *title) {
 
 double get_color_ext_async(double defcol, char *title) {
   unsigned id = dialog_identifier++;
-  std::thread dialog_thread(threaded_double_result_helper, id, dialog_module::get_color_ext((int)defcol, title));
+  std::thread dialog_thread(get_color_ext_threaded, (int)defcol, title, id);
   dialog_thread.detach();
   return (double)id;
 }
