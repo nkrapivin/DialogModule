@@ -25,6 +25,7 @@
  */
 
 #include "DialogModule.h"
+#include <thread>
 
 #ifdef _WIN32
 #define EXPORTED_FUNCTION extern "C" __declspec(dllexport)
@@ -32,26 +33,69 @@
 #define EXPORTED_FUNCTION extern "C" __attribute__((visibility("default")))
 #endif
 
+namespace {
+
+unsigned dialog_identifier = 100;
+void(*CreateAsynEventWithDSMap)(int, int);
+int(*CreateDsMap)(int _num, ...);
+bool(*DsMapAddDouble)(int _index, char *_pKey, double value);
+bool(*DsMapAddString)(int _index, char *_pKey, char *pVal);
+
+void threaded_double_result_helper(double id, double result) {
+  int resultMap = CreateDsMap(0);
+  DsMapAddDouble(resultMap, (char *)"id", (double)id);
+  DsMapAddDouble(resultMap, (char *)"status", (double)result);
+  CreateAsynEventWithDSMap(resultMap, 70);
+}
+
+void threaded_string_result_helper(double id, char *result) {
+  int resultMap = CreateDsMap(0);
+  DsMapAddDouble(resultMap, (char *)"id", (double)id);
+  DsMapAddString(resultMap, (char *)"status", (char *)result);
+  CreateAsynEventWithDSMap(resultMap, 70);
+}
+
+} // anonymous namespace
+
 EXPORTED_FUNCTION double show_message(char *str);
+EXPORTED_FUNCTION double show_message_async(char *str);
 EXPORTED_FUNCTION double show_message_cancelable(char *str);
+EXPORTED_FUNCTION double show_message_cancelable_async(char *str);
 EXPORTED_FUNCTION double show_question(char *str);
+EXPORTED_FUNCTION double show_question_async(char *str);
 EXPORTED_FUNCTION double show_question_cancelable(char *str);
+EXPORTED_FUNCTION double show_question_cancelable_async(char *str);
 EXPORTED_FUNCTION double show_attempt(char *str);
+EXPORTED_FUNCTION double show_attempt_async(char *str);
 EXPORTED_FUNCTION double show_error(char *str, double abort);
+EXPORTED_FUNCTION double show_error_async(char *str, double abort);
 EXPORTED_FUNCTION char *get_string(char *str, char *def);
+EXPORTED_FUNCTION double get_string_async(char *str, char *def);
 EXPORTED_FUNCTION char *get_password(char *str, char *def);
+EXPORTED_FUNCTION double get_password_async(char *str, char *def);
 EXPORTED_FUNCTION double get_integer(char *str, double def);
+EXPORTED_FUNCTION double get_integer_async(char *str, double def);
 EXPORTED_FUNCTION double get_passcode(char *str, double def);
+EXPORTED_FUNCTION double get_passcode_async(char *str, double def);
 EXPORTED_FUNCTION char *get_open_filename(char *filter, char *fname);
+EXPORTED_FUNCTION double get_open_filename_async(char *filter, char *fname);
 EXPORTED_FUNCTION char *get_open_filename_ext(char *filter, char *fname, char *dir, char *title);
+EXPORTED_FUNCTION double get_open_filename_ext_async(char *filter, char *fname, char *dir, char *title);
 EXPORTED_FUNCTION char *get_open_filenames(char *filter, char *fname);
+EXPORTED_FUNCTION double get_open_filenames_async(char *filter, char *fname);
 EXPORTED_FUNCTION char *get_open_filenames_ext(char *filter, char *fname, char *dir, char *title);
+EXPORTED_FUNCTION double get_open_filenames_ext_async(char *filter, char *fname, char *dir, char *title);
 EXPORTED_FUNCTION char *get_save_filename(char *filter, char *fname);
+EXPORTED_FUNCTION double get_save_filename_async(char *filter, char *fname);
 EXPORTED_FUNCTION char *get_save_filename_ext(char *filter, char *fname, char *dir, char *title);
+EXPORTED_FUNCTION double get_save_filename_ext_async(char *filter, char *fname, char *dir, char *title);
 EXPORTED_FUNCTION char *get_directory(char *dname);
-EXPORTED_FUNCTION char *get_directory_alt(char *capt, char *root);
+EXPORTED_FUNCTION char *get_directory(char *dname);
+EXPORTED_FUNCTION double get_directory_alt_async(char *capt, char *root);
 EXPORTED_FUNCTION double get_color(double defcol);
+EXPORTED_FUNCTION double get_color_async(double defcol);
 EXPORTED_FUNCTION double get_color_ext(double defcol, char *title);
+EXPORTED_FUNCTION double get_color_ext_async(double defcol, char *title);
 EXPORTED_FUNCTION char *widget_get_caption();
 EXPORTED_FUNCTION double widget_set_caption(char *str);
 EXPORTED_FUNCTION void *widget_get_owner();
@@ -60,85 +104,226 @@ EXPORTED_FUNCTION char *widget_get_icon();
 EXPORTED_FUNCTION double widget_set_icon(char *icon);
 EXPORTED_FUNCTION char *widget_get_system();
 EXPORTED_FUNCTION double widget_set_system(char *sys);
+EXPORTED_FUNCTION void RegisterCallbacks(char *arg1, char *arg2, char *arg3, char *arg4);
 
 double show_message(char *str) {
   return dialog_module::show_message(str);
+}
+
+double show_message_async(char *str) {
+  unsigned id = dialog_identifier++;
+  std::thread dialog_thread(threaded_double_result_helper, id, dialog_module::show_message(str));
+  dialog_thread.detach();
+  return (double)id;
 }
 
 double show_message_cancelable(char *str) {
   return dialog_module::show_message_cancelable(str);
 }
 
+double show_message_cancelable_async(char *str) {
+  unsigned id = dialog_identifier++;
+  std::thread dialog_thread(threaded_double_result_helper, id, dialog_module::show_message_cancelable(str));
+  dialog_thread.detach();
+  return (double)id;
+}
+
 double show_question(char *str) {
   return dialog_module::show_question(str);
+}
+
+double show_question_async(char *str) {
+  unsigned id = dialog_identifier++;
+  std::thread dialog_thread(threaded_double_result_helper, id, dialog_module::show_question(str));
+  dialog_thread.detach();
+  return (double)id;
 }
 
 double show_question_cancelable(char *str) {
   return dialog_module::show_question_cancelable(str);
 }
 
+double show_question_cancelable_async(char *str) {
+  unsigned id = dialog_identifier++;
+  std::thread dialog_thread(threaded_double_result_helper, id, dialog_module::show_question_cancelable(str));
+  dialog_thread.detach();
+  return (double)id;
+}
+
 double show_attempt(char *str) {
   return dialog_module::show_attempt(str);
+}
+
+double show_attempt_async(char *str) {
+  unsigned id = dialog_identifier++;
+  std::thread dialog_thread(threaded_double_result_helper, id, dialog_module::show_attempt(str));
+  dialog_thread.detach();
+  return (double)id;
 }
 
 double show_error(char *str, double abort) {
   return dialog_module::show_error(str, abort);
 }
 
+double show_error_async(char *str, double abort) {
+  unsigned id = dialog_identifier++;
+  std::thread dialog_thread(threaded_double_result_helper, id, dialog_module::show_error(str, abort));
+  dialog_thread.detach();
+  return (double)id;
+}
+
 char *get_string(char *str, char *def) {
   return dialog_module::get_string(str, def);
+}
+
+double get_string_async(char *str, char *def) {
+  unsigned id = dialog_identifier++;
+  std::thread dialog_thread(threaded_string_result_helper, id, dialog_module::get_string(str, def));
+  dialog_thread.detach();
+  return (double)id;
 }
 
 char *get_password(char *str, char *def) {
   return dialog_module::get_password(str, def);
 }
 
+double get_password_async(char *str, char *def) {
+  unsigned id = dialog_identifier++;
+  std::thread dialog_thread(threaded_string_result_helper, id, dialog_module::get_password(str, def));
+  dialog_thread.detach();
+  return (double)id;
+}
+
 double get_integer(char *str, double def) {
   return dialog_module::get_integer(str, def);
+}
+
+double get_integer_async(char *str, double def) {
+  unsigned id = dialog_identifier++;
+  std::thread dialog_thread(threaded_double_result_helper, id, dialog_module::get_integer(str, def));
+  dialog_thread.detach();
+  return (double)id;
 }
 
 double get_passcode(char *str, double def) {
   return dialog_module::get_passcode(str, def);
 }
 
+double get_passcode_async(char *str, double def) {
+  unsigned id = dialog_identifier++;
+  std::thread dialog_thread(threaded_double_result_helper, id, dialog_module::get_passcode(str, def));
+  dialog_thread.detach();
+  return (double)id;
+}
+
 char *get_open_filename(char *filter, char *fname) {
   return dialog_module::get_open_filename(filter, fname);
+}
+
+double get_open_filename_async(char *filter, char *fname) {
+  unsigned id = dialog_identifier++;
+  std::thread dialog_thread(threaded_string_result_helper, id, dialog_module::get_open_filename(filter, fname));
+  dialog_thread.detach();
+  return (double)id;
 }
 
 char *get_open_filename_ext(char *filter, char *fname, char *dir, char *title) {
   return dialog_module::get_open_filename_ext(filter, fname, dir, title);
 }
 
+double get_open_filename_ext_async(char *filter, char *fname, char *dir, char *title) {
+  unsigned id = dialog_identifier++;
+  std::thread dialog_thread(threaded_string_result_helper, id, dialog_module::get_open_filename_ext(filter, fname, dir, title));
+  dialog_thread.detach();
+  return (double)id;
+}
+
 char *get_open_filenames(char *filter, char *fname) {
   return dialog_module::get_open_filenames(filter, fname);
+}
+
+double get_open_filenames_async(char *filter, char *fname) {
+  unsigned id = dialog_identifier++;
+  std::thread dialog_thread(threaded_string_result_helper, id, dialog_module::get_open_filenames(filter, fname));
+  dialog_thread.detach();
+  return (double)id;
 }
 
 char *get_open_filenames_ext(char *filter, char *fname, char *dir, char *title) {
   return dialog_module::get_open_filenames_ext(filter, fname, dir, title);
 }
 
+double get_open_filenames_ext_async(char *filter, char *fname, char *dir, char *title) {
+  unsigned id = dialog_identifier++;
+  std::thread dialog_thread(threaded_string_result_helper, id, dialog_module::get_open_filenames_ext(filter, fname, dir, title));
+  dialog_thread.detach();
+  return (double)id;
+}
+
 char *get_save_filename(char *filter, char *fname) {
   return dialog_module::get_save_filename(filter, fname);
+}
+
+double get_save_filename_async(char *filter, char *fname) {
+  unsigned id = dialog_identifier++;
+  std::thread dialog_thread(threaded_string_result_helper, id, dialog_module::get_save_filename(filter, fname));
+  dialog_thread.detach();
+  return (double)id;
 }
 
 char *get_save_filename_ext(char *filter, char *fname, char *dir, char *title) {
   return dialog_module::get_save_filename_ext(filter, fname, dir, title);
 }
 
+double get_save_filename_ext_async(char *filter, char *fname, char *dir, char *title) {
+  unsigned id = dialog_identifier++;
+  std::thread dialog_thread(threaded_string_result_helper, id, dialog_module::get_save_filename_ext(filter, fname, dir, title));
+  dialog_thread.detach();
+  return (double)id;
+}
+
 char *get_directory(char *dname) {
   return dialog_module::get_directory(dname);
+}
+
+double get_directory_async(char *dname) {
+  unsigned id = dialog_identifier++;
+  std::thread dialog_thread(threaded_string_result_helper, id, dialog_module::get_directory(dname));
+  dialog_thread.detach();
+  return (double)id;
 }
 
 char *get_directory_alt(char *capt, char *root) {
   return dialog_module::get_directory_alt(capt, root);
 }
 
+double get_directory_alt_async(char *capt, char *root) {
+  unsigned id = dialog_identifier++;
+  std::thread dialog_thread(threaded_string_result_helper, id, dialog_module::get_directory_alt(capt, root));
+  dialog_thread.detach();
+  return (double)id;
+}
+
 double get_color(double defcol) {
   return dialog_module::get_color((int)defcol);
 }
 
+double get_color_async(double defcol) {
+  unsigned id = dialog_identifier++;
+  std::thread dialog_thread(threaded_double_result_helper, id, dialog_module::get_color((int)defcol));
+  dialog_thread.detach();
+  return (double)id;
+}
+
 double get_color_ext(double defcol, char *title) {
   return dialog_module::get_color_ext((int)defcol, title);
+}
+
+double get_color_ext_async(double defcol, char *title) {
+  unsigned id = dialog_identifier++;
+  std::thread dialog_thread(threaded_double_result_helper, id, dialog_module::get_color_ext((int)defcol, title));
+  dialog_thread.detach();
+  return (double)id;
 }
 
 char *widget_get_caption() {
@@ -175,4 +360,17 @@ char *widget_get_system() {
 double widget_set_system(char *sys) {
   dialog_module::widget_set_system(sys);
   return 0;
+}
+
+void RegisterCallbacks(char *arg1, char *arg2, char *arg3, char *arg4) {
+  void(*CreateAsynEventWithDSMapPtr)(int, int) = (void(*)(int, int))(arg1);
+  int(*CreateDsMapPtr)(int _num, ...) = (int(*)(int _num, ...))(arg2);
+  CreateAsynEventWithDSMap = CreateAsynEventWithDSMapPtr;
+  CreateDsMap = CreateDsMapPtr;
+
+  bool(*DsMapAddDoublePtr)(int _index, char *_pKey, double value) = (bool(*)(int, char *, double))(arg3);
+  bool(*DsMapAddStringPtr)(int _index, char *_pKey, char *pVal) = (bool(*)(int, char *, char *))(arg4);
+
+  DsMapAddDouble = DsMapAddDoublePtr;
+  DsMapAddString = DsMapAddStringPtr;
 }
