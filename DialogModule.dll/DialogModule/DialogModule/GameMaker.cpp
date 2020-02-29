@@ -26,120 +26,13 @@
 
 #include "DialogModule.h"
 #include <thread>
+#include <string>
 
 #ifdef _WIN32
 #define EXPORTED_FUNCTION extern "C" __declspec(dllexport)
 #else /* macOS, Linux, and BSD */
 #define EXPORTED_FUNCTION extern "C" __attribute__((visibility("default")))
 #endif
-
-namespace {
-
-unsigned dialog_identifier = 100;
-void(*CreateAsynEventWithDSMap)(int, int);
-int(*CreateDsMap)(int _num, ...);
-bool(*DsMapAddDouble)(int _index, char *_pKey, double value);
-bool(*DsMapAddString)(int _index, char *_pKey, char *pVal);
-
-void threaded_double_result_helper(double id, double func) {
-  double result = func;
-  int resultMap = CreateDsMap(0);
-  DsMapAddDouble(resultMap, (char *)"id", id);
-  DsMapAddDouble(resultMap, (char *)"status", 1);
-  DsMapAddDouble(resultMap, (char *)"result", result);
-  CreateAsynEventWithDSMap(resultMap, 70);
-}
-
-void threaded_string_result_helper(double id, char *func) {
-  char *result = func;
-  int resultMap = CreateDsMap(0);
-  DsMapAddDouble(resultMap, (char *)"id", id);
-  DsMapAddDouble(resultMap, (char *)"status", 1);
-  DsMapAddString(resultMap, (char *)"result", result);
-  CreateAsynEventWithDSMap(resultMap, 70);
-}
-
-void show_message_threaded(char *str, unsigned id) {
-  threaded_double_result_helper(id, dialog_module::show_message(str));
-}
-
-void show_message_cancelable_threaded(char *str, unsigned id) {
-  threaded_double_result_helper(id, dialog_module::show_message_cancelable(str));
-}
-
-void show_question_threaded(char *str, unsigned id) {
-  threaded_double_result_helper(id, dialog_module::show_question(str));
-}
-
-void show_question_cancelable_threaded(char *str, unsigned id) {
-  threaded_double_result_helper(id, dialog_module::show_question_cancelable(str));
-}
-
-void show_attempt_threaded(char *str, unsigned id) {
-  threaded_double_result_helper(id, dialog_module::show_attempt(str));
-}
-
-void show_error_threaded(char *str, double abort, unsigned id) {
-  threaded_double_result_helper(id, dialog_module::show_error(str, abort));
-}
-
-void get_string_threaded(char *str, char *def, unsigned id) {
-  threaded_string_result_helper(id, dialog_module::get_string(str, def));
-}
-
-void get_password_threaded(char *str, char *def, unsigned id) {
-  threaded_string_result_helper(id, dialog_module::get_password(str, def));
-}
-
-void get_integer_threaded(char *str, double def, unsigned id) {
-  threaded_double_result_helper(id, dialog_module::get_integer(str, def));
-}
-
-void get_passcode_threaded(char *str, double def, unsigned id) {
-  threaded_double_result_helper(id, dialog_module::get_passcode(str, def));
-}
-
-void get_open_filename_threaded(char *filter, char *fname, unsigned id) {
-  threaded_string_result_helper(id, dialog_module::get_open_filename(filter, fname));
-}
-
-void get_open_filename_ext_threaded(char *filter, char *fname, char *dir, char *title, unsigned id) {
-  threaded_string_result_helper(id, dialog_module::get_open_filename_ext(filter, fname, dir, title));
-}
-
-void get_open_filenames_threaded(char *filter, char *fname, unsigned id) {
-  threaded_string_result_helper(id, dialog_module::get_open_filenames(filter, fname));
-}
-
-void get_open_filenames_ext_threaded(char *filter, char *fname, char *dir, char *title, unsigned id) {
-  threaded_string_result_helper(id, dialog_module::get_open_filenames_ext(filter, fname, dir, title));
-}
-
-void get_save_filename_threaded(char *filter, char *fname, unsigned id) {
-  threaded_string_result_helper(id, dialog_module::get_save_filename(filter, fname));
-}
-
-void get_save_filename_ext_threaded(char *filter, char *fname, char *dir, char *title, unsigned id) {
-  threaded_string_result_helper(id, dialog_module::get_save_filename_ext(filter, fname, dir, title));
-}
-
-void get_directory_threaded(char *dname, unsigned id) {
-  threaded_string_result_helper(id, dialog_module::get_directory(dname));
-}
-
-void get_directory_alt_threaded(char *capt, char *root, unsigned id) {
-  threaded_string_result_helper(id, dialog_module::get_directory_alt(capt, root));
-}
-
-void get_color_threaded(double defcol, unsigned id) {
-  threaded_double_result_helper(id, dialog_module::get_color((int)defcol));
-}
-
-void get_color_ext_threaded(double defcol, char *title, unsigned id) {
-  threaded_double_result_helper(id, dialog_module::get_color_ext((int)defcol, title));
-}
-
-} // anonymous namespace
 
 EXPORTED_FUNCTION double show_message(char *str);
 EXPORTED_FUNCTION double show_message_async(char *str);
@@ -190,6 +83,196 @@ EXPORTED_FUNCTION double widget_set_icon(char *icon);
 EXPORTED_FUNCTION char *widget_get_system();
 EXPORTED_FUNCTION double widget_set_system(char *sys);
 EXPORTED_FUNCTION void RegisterCallbacks(char *arg1, char *arg2, char *arg3, char *arg4);
+
+namespace {
+
+unsigned dialog_identifier = 100;
+void(*CreateAsynEventWithDSMap)(int, int);
+int(*CreateDsMap)(int _num, ...);
+bool(*DsMapAddDouble)(int _index, char *_pKey, double value);
+bool(*DsMapAddString)(int _index, char *_pKey, char *pVal);
+
+void show_message_threaded(char *str, unsigned id) {
+  double result = show_message(str);
+  int resultMap = CreateDsMap(0);
+  DsMapAddDouble(resultMap, (char *)"id", id);
+  DsMapAddDouble(resultMap, (char *)"status", (result == 1));
+  DsMapAddDouble(resultMap, (char *)"result", result);
+  CreateAsynEventWithDSMap(resultMap, 70);
+}
+
+void show_message_cancelable_threaded(char *str, unsigned id) {
+  double result = show_message_cancelable(str);
+  int resultMap = CreateDsMap(0);
+  DsMapAddDouble(resultMap, (char *)"id", id);
+  DsMapAddDouble(resultMap, (char *)"status", (result == 1));
+  DsMapAddDouble(resultMap, (char *)"result", result);
+  CreateAsynEventWithDSMap(resultMap, 70);
+}
+
+void show_question_threaded(char *str, unsigned id) {
+  double result = show_question(str);
+  int resultMap = CreateDsMap(0);
+  DsMapAddDouble(resultMap, (char *)"id", id);
+  DsMapAddDouble(resultMap, (char *)"status", (result == 1));
+  DsMapAddDouble(resultMap, (char *)"result", result);
+  CreateAsynEventWithDSMap(resultMap, 70);
+}
+
+void show_question_cancelable_threaded(char *str, unsigned id) {
+  double result = show_question_cancelable(str);
+  int resultMap = CreateDsMap(0);
+  DsMapAddDouble(resultMap, (char *)"id", id);
+  DsMapAddDouble(resultMap, (char *)"status", (result == 1));
+  DsMapAddDouble(resultMap, (char *)"result", result);
+  CreateAsynEventWithDSMap(resultMap, 70);
+}
+
+void show_attempt_threaded(char *str, unsigned id) {
+  double result = show_attempt(str);
+  int resultMap = CreateDsMap(0);
+  DsMapAddDouble(resultMap, (char *)"id", id);
+  DsMapAddDouble(resultMap, (char *)"status", (result != -1));
+  DsMapAddDouble(resultMap, (char *)"result", result);
+  CreateAsynEventWithDSMap(resultMap, 70);
+}
+
+void show_error_threaded(char *str, double abort, unsigned id) {
+  double result = show_error(str, abort);
+  int resultMap = CreateDsMap(0);
+  DsMapAddDouble(resultMap, (char *)"id", id);
+  DsMapAddDouble(resultMap, (char *)"status", (result != -1));
+  DsMapAddDouble(resultMap, (char *)"result", result);
+  CreateAsynEventWithDSMap(resultMap, 70);
+}
+
+void get_string_threaded(char *str, char *def, unsigned id) {
+  char *result = get_string(str, def);
+  int resultMap = CreateDsMap(0);
+  DsMapAddDouble(resultMap, (char *)"id", id);
+  DsMapAddDouble(resultMap, (char *)"status", (std::string(result) != ""));
+  DsMapAddString(resultMap, (char *)"result", result);
+  CreateAsynEventWithDSMap(resultMap, 70);
+}
+
+void get_password_threaded(char *str, char *def, unsigned id) {
+  char *result = get_password(str, def);
+  int resultMap = CreateDsMap(0);
+  DsMapAddDouble(resultMap, (char *)"id", id);
+  DsMapAddDouble(resultMap, (char *)"status", (std::string(result) != ""));
+  DsMapAddString(resultMap, (char *)"result", result);
+  CreateAsynEventWithDSMap(resultMap, 70);
+}
+
+void get_integer_threaded(char *str, double def, unsigned id) {
+  double result = get_integer(str, def);
+  int resultMap = CreateDsMap(0);
+  DsMapAddDouble(resultMap, (char *)"id", id);
+  DsMapAddDouble(resultMap, (char *)"status", (result != 0));
+  DsMapAddDouble(resultMap, (char *)"result", result);
+  CreateAsynEventWithDSMap(resultMap, 70);
+}
+
+void get_passcode_threaded(char *str, double def, unsigned id) {
+  double result = get_passcode(str, def);
+  int resultMap = CreateDsMap(0);
+  DsMapAddDouble(resultMap, (char *)"id", id);
+  DsMapAddDouble(resultMap, (char *)"status", (result != 0));
+  DsMapAddDouble(resultMap, (char *)"result", result);
+  CreateAsynEventWithDSMap(resultMap, 70);
+}
+
+void get_open_filename_threaded(char *filter, char *fname, unsigned id) {
+  char *result = get_open_filename(filter, fname);
+  int resultMap = CreateDsMap(0);
+  DsMapAddDouble(resultMap, (char *)"id", id);
+  DsMapAddDouble(resultMap, (char *)"status", (std::string(result) != ""));
+  DsMapAddString(resultMap, (char *)"result", result);
+  CreateAsynEventWithDSMap(resultMap, 70);
+}
+
+void get_open_filename_ext_threaded(char *filter, char *fname, char *dir, char *title, unsigned id) {
+  char *result = get_open_filename_ext(filter, fname, dir, title);
+  int resultMap = CreateDsMap(0);
+  DsMapAddDouble(resultMap, (char *)"id", id);
+  DsMapAddDouble(resultMap, (char *)"status", (std::string(result) != ""));
+  DsMapAddString(resultMap, (char *)"result", result);
+  CreateAsynEventWithDSMap(resultMap, 70);
+}
+
+void get_open_filenames_threaded(char *filter, char *fname, unsigned id) {
+  char *result = get_open_filenames(filter, fname);
+  int resultMap = CreateDsMap(0);
+  DsMapAddDouble(resultMap, (char *)"id", id);
+  DsMapAddDouble(resultMap, (char *)"status", (std::string(result) != ""));
+  DsMapAddString(resultMap, (char *)"result", result);
+  CreateAsynEventWithDSMap(resultMap, 70);
+}
+
+void get_open_filenames_ext_threaded(char *filter, char *fname, char *dir, char *title, unsigned id) {
+  char *result = get_open_filenames_ext(filter, fname, dir, title);
+  int resultMap = CreateDsMap(0);
+  DsMapAddDouble(resultMap, (char *)"id", id);
+  DsMapAddDouble(resultMap, (char *)"status", (std::string(result) != ""));
+  DsMapAddString(resultMap, (char *)"result", result);
+  CreateAsynEventWithDSMap(resultMap, 70);
+}
+
+void get_save_filename_threaded(char *filter, char *fname, unsigned id) {
+  char *result = get_save_filename(filter, fname);
+  int resultMap = CreateDsMap(0);
+  DsMapAddDouble(resultMap, (char *)"id", id);
+  DsMapAddDouble(resultMap, (char *)"status", (std::string(result) != ""));
+  DsMapAddString(resultMap, (char *)"result", result);
+  CreateAsynEventWithDSMap(resultMap, 70);
+}
+
+void get_save_filename_ext_threaded(char *filter, char *fname, char *dir, char *title, unsigned id) {
+  char *result = get_save_filename_ext(filter, fname, dir, title);
+  int resultMap = CreateDsMap(0);
+  DsMapAddDouble(resultMap, (char *)"id", id);
+  DsMapAddDouble(resultMap, (char *)"status", (std::string(result) != ""));
+  DsMapAddString(resultMap, (char *)"result", result);
+  CreateAsynEventWithDSMap(resultMap, 70);
+}
+
+void get_directory_threaded(char *dname, unsigned id) {
+  char *result = get_directory(dname);
+  int resultMap = CreateDsMap(0);
+  DsMapAddDouble(resultMap, (char *)"id", id);
+  DsMapAddDouble(resultMap, (char *)"status", (std::string(result) != ""));
+  DsMapAddString(resultMap, (char *)"result", result);
+  CreateAsynEventWithDSMap(resultMap, 70);
+}
+
+void get_directory_alt_threaded(char *capt, char *root, unsigned id) {
+  char *result = get_directory_alt(capt, root);
+  int resultMap = CreateDsMap(0);
+  DsMapAddDouble(resultMap, (char *)"id", id);
+  DsMapAddDouble(resultMap, (char *)"status", (std::string(result) != ""));
+  DsMapAddString(resultMap, (char *)"result", result);
+  CreateAsynEventWithDSMap(resultMap, 70);
+}
+
+void get_color_threaded(double defcol, unsigned id) {
+  double result = get_color(defcol);
+  int resultMap = CreateDsMap(0);
+  DsMapAddDouble(resultMap, (char *)"id", id);
+  DsMapAddDouble(resultMap, (char *)"status", (result != -1));
+  DsMapAddDouble(resultMap, (char *)"result", result);
+  CreateAsynEventWithDSMap(resultMap, 70);
+}
+
+void get_color_ext_threaded(double defcol, char *title, unsigned id) {
+  double result = get_color_ext(defcol, title);
+  int resultMap = CreateDsMap(0);
+  DsMapAddDouble(resultMap, (char *)"id", id);
+  DsMapAddDouble(resultMap, (char *)"status", (result != -1));
+  DsMapAddDouble(resultMap, (char *)"result", result);
+  CreateAsynEventWithDSMap(resultMap, 70);
+}
+
+} // anonymous namespace
 
 double show_message(char *str) {
   return dialog_module::show_message(str);
