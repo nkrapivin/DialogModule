@@ -96,8 +96,7 @@ void show_message_threaded(char *str, unsigned id) {
   double result = show_message(str);
   int resultMap = CreateDsMap(0);
   DsMapAddDouble(resultMap, (char *)"id", id);
-  DsMapAddDouble(resultMap, (char *)"status", (result == 1));
-  DsMapAddDouble(resultMap, (char *)"result", result);
+  DsMapAddDouble(resultMap, (char *)"status", result);
   CreateAsynEventWithDSMap(resultMap, 70);
 }
 
@@ -105,8 +104,7 @@ void show_message_cancelable_threaded(char *str, unsigned id) {
   double result = show_message_cancelable(str);
   int resultMap = CreateDsMap(0);
   DsMapAddDouble(resultMap, (char *)"id", id);
-  DsMapAddDouble(resultMap, (char *)"status", (result == 1));
-  DsMapAddDouble(resultMap, (char *)"result", result);
+  DsMapAddDouble(resultMap, (char *)"status", result);
   CreateAsynEventWithDSMap(resultMap, 70);
 }
 
@@ -114,8 +112,7 @@ void show_question_threaded(char *str, unsigned id) {
   double result = show_question(str);
   int resultMap = CreateDsMap(0);
   DsMapAddDouble(resultMap, (char *)"id", id);
-  DsMapAddDouble(resultMap, (char *)"status", (result == 1));
-  DsMapAddDouble(resultMap, (char *)"result", result);
+  DsMapAddDouble(resultMap, (char *)"status", result);
   CreateAsynEventWithDSMap(resultMap, 70);
 }
 
@@ -123,8 +120,7 @@ void show_question_cancelable_threaded(char *str, unsigned id) {
   double result = show_question_cancelable(str);
   int resultMap = CreateDsMap(0);
   DsMapAddDouble(resultMap, (char *)"id", id);
-  DsMapAddDouble(resultMap, (char *)"status", (result == 1));
-  DsMapAddDouble(resultMap, (char *)"result", result);
+  DsMapAddDouble(resultMap, (char *)"status", result);
   CreateAsynEventWithDSMap(resultMap, 70);
 }
 
@@ -132,8 +128,7 @@ void show_attempt_threaded(char *str, unsigned id) {
   double result = show_attempt(str);
   int resultMap = CreateDsMap(0);
   DsMapAddDouble(resultMap, (char *)"id", id);
-  DsMapAddDouble(resultMap, (char *)"status", (result != -1));
-  DsMapAddDouble(resultMap, (char *)"result", result);
+  DsMapAddDouble(resultMap, (char *)"status", result);
   CreateAsynEventWithDSMap(resultMap, 70);
 }
 
@@ -141,8 +136,7 @@ void show_error_threaded(char *str, double abort, unsigned id) {
   double result = show_error(str, abort);
   int resultMap = CreateDsMap(0);
   DsMapAddDouble(resultMap, (char *)"id", id);
-  DsMapAddDouble(resultMap, (char *)"status", (result != -1));
-  DsMapAddDouble(resultMap, (char *)"result", result);
+  DsMapAddDouble(resultMap, (char *)"status", result);
   CreateAsynEventWithDSMap(resultMap, 70);
 }
 
@@ -150,7 +144,7 @@ void get_string_threaded(char *str, char *def, unsigned id) {
   char *result = get_string(str, def);
   int resultMap = CreateDsMap(0);
   DsMapAddDouble(resultMap, (char *)"id", id);
-  DsMapAddDouble(resultMap, (char *)"status", (std::string(result) != ""));
+  DsMapAddDouble(resultMap, (char *)"status", 1);
   DsMapAddString(resultMap, (char *)"result", result);
   CreateAsynEventWithDSMap(resultMap, 70);
 }
@@ -159,7 +153,7 @@ void get_password_threaded(char *str, char *def, unsigned id) {
   char *result = get_password(str, def);
   int resultMap = CreateDsMap(0);
   DsMapAddDouble(resultMap, (char *)"id", id);
-  DsMapAddDouble(resultMap, (char *)"status", (std::string(result) != ""));
+  DsMapAddDouble(resultMap, (char *)"status", 1);
   DsMapAddString(resultMap, (char *)"result", result);
   CreateAsynEventWithDSMap(resultMap, 70);
 }
@@ -168,8 +162,8 @@ void get_integer_threaded(char *str, double def, unsigned id) {
   double result = get_integer(str, def);
   int resultMap = CreateDsMap(0);
   DsMapAddDouble(resultMap, (char *)"id", id);
-  DsMapAddDouble(resultMap, (char *)"status", (result != 0));
-  DsMapAddDouble(resultMap, (char *)"result", result);
+  DsMapAddDouble(resultMap, (char *)"status", 1);
+  DsMapAddDouble(resultMap, (char *)"value", result);
   CreateAsynEventWithDSMap(resultMap, 70);
 }
 
@@ -177,8 +171,8 @@ void get_passcode_threaded(char *str, double def, unsigned id) {
   double result = get_passcode(str, def);
   int resultMap = CreateDsMap(0);
   DsMapAddDouble(resultMap, (char *)"id", id);
-  DsMapAddDouble(resultMap, (char *)"status", (result != 0));
-  DsMapAddDouble(resultMap, (char *)"result", result);
+  DsMapAddDouble(resultMap, (char *)"status", 1);
+  DsMapAddDouble(resultMap, (char *)"value", result);
   CreateAsynEventWithDSMap(resultMap, 70);
 }
 
@@ -186,7 +180,7 @@ void get_open_filename_threaded(char *filter, char *fname, unsigned id) {
   char *result = get_open_filename(filter, fname);
   int resultMap = CreateDsMap(0);
   DsMapAddDouble(resultMap, (char *)"id", id);
-  DsMapAddDouble(resultMap, (char *)"status", (std::string(result) != ""));
+  DsMapAddDouble(resultMap, (char *)"status", 1);
   DsMapAddString(resultMap, (char *)"result", result);
   CreateAsynEventWithDSMap(resultMap, 70);
 }
@@ -195,7 +189,7 @@ void get_open_filename_ext_threaded(char *filter, char *fname, char *dir, char *
   char *result = get_open_filename_ext(filter, fname, dir, title);
   int resultMap = CreateDsMap(0);
   DsMapAddDouble(resultMap, (char *)"id", id);
-  DsMapAddDouble(resultMap, (char *)"status", (std::string(result) != ""));
+  DsMapAddDouble(resultMap, (char *)"status", 1);
   DsMapAddString(resultMap, (char *)"result", result);
   CreateAsynEventWithDSMap(resultMap, 70);
 }
@@ -204,7 +198,7 @@ void get_open_filenames_threaded(char *filter, char *fname, unsigned id) {
   char *result = get_open_filenames(filter, fname);
   int resultMap = CreateDsMap(0);
   DsMapAddDouble(resultMap, (char *)"id", id);
-  DsMapAddDouble(resultMap, (char *)"status", (std::string(result) != ""));
+  DsMapAddDouble(resultMap, (char *)"status", 1);
   DsMapAddString(resultMap, (char *)"result", result);
   CreateAsynEventWithDSMap(resultMap, 70);
 }
@@ -213,7 +207,7 @@ void get_open_filenames_ext_threaded(char *filter, char *fname, char *dir, char 
   char *result = get_open_filenames_ext(filter, fname, dir, title);
   int resultMap = CreateDsMap(0);
   DsMapAddDouble(resultMap, (char *)"id", id);
-  DsMapAddDouble(resultMap, (char *)"status", (std::string(result) != ""));
+  DsMapAddDouble(resultMap, (char *)"status", 1);
   DsMapAddString(resultMap, (char *)"result", result);
   CreateAsynEventWithDSMap(resultMap, 70);
 }
@@ -222,7 +216,7 @@ void get_save_filename_threaded(char *filter, char *fname, unsigned id) {
   char *result = get_save_filename(filter, fname);
   int resultMap = CreateDsMap(0);
   DsMapAddDouble(resultMap, (char *)"id", id);
-  DsMapAddDouble(resultMap, (char *)"status", (std::string(result) != ""));
+  DsMapAddDouble(resultMap, (char *)"status", 1);
   DsMapAddString(resultMap, (char *)"result", result);
   CreateAsynEventWithDSMap(resultMap, 70);
 }
@@ -231,7 +225,7 @@ void get_save_filename_ext_threaded(char *filter, char *fname, char *dir, char *
   char *result = get_save_filename_ext(filter, fname, dir, title);
   int resultMap = CreateDsMap(0);
   DsMapAddDouble(resultMap, (char *)"id", id);
-  DsMapAddDouble(resultMap, (char *)"status", (std::string(result) != ""));
+  DsMapAddDouble(resultMap, (char *)"status", 1);
   DsMapAddString(resultMap, (char *)"result", result);
   CreateAsynEventWithDSMap(resultMap, 70);
 }
@@ -240,7 +234,7 @@ void get_directory_threaded(char *dname, unsigned id) {
   char *result = get_directory(dname);
   int resultMap = CreateDsMap(0);
   DsMapAddDouble(resultMap, (char *)"id", id);
-  DsMapAddDouble(resultMap, (char *)"status", (std::string(result) != ""));
+  DsMapAddDouble(resultMap, (char *)"status", 1);
   DsMapAddString(resultMap, (char *)"result", result);
   CreateAsynEventWithDSMap(resultMap, 70);
 }
@@ -249,7 +243,7 @@ void get_directory_alt_threaded(char *capt, char *root, unsigned id) {
   char *result = get_directory_alt(capt, root);
   int resultMap = CreateDsMap(0);
   DsMapAddDouble(resultMap, (char *)"id", id);
-  DsMapAddDouble(resultMap, (char *)"status", (std::string(result) != ""));
+  DsMapAddDouble(resultMap, (char *)"status", 1);
   DsMapAddString(resultMap, (char *)"result", result);
   CreateAsynEventWithDSMap(resultMap, 70);
 }
@@ -258,8 +252,8 @@ void get_color_threaded(double defcol, unsigned id) {
   double result = get_color(defcol);
   int resultMap = CreateDsMap(0);
   DsMapAddDouble(resultMap, (char *)"id", id);
-  DsMapAddDouble(resultMap, (char *)"status", (result != -1));
-  DsMapAddDouble(resultMap, (char *)"result", result);
+  DsMapAddDouble(resultMap, (char *)"status", 1);
+  DsMapAddDouble(resultMap, (char *)"value", result);
   CreateAsynEventWithDSMap(resultMap, 70);
 }
 
@@ -267,8 +261,8 @@ void get_color_ext_threaded(double defcol, char *title, unsigned id) {
   double result = get_color_ext(defcol, title);
   int resultMap = CreateDsMap(0);
   DsMapAddDouble(resultMap, (char *)"id", id);
-  DsMapAddDouble(resultMap, (char *)"status", (result != -1));
-  DsMapAddDouble(resultMap, (char *)"result", result);
+  DsMapAddDouble(resultMap, (char *)"status", 1);
+  DsMapAddDouble(resultMap, (char *)"value", result);
   CreateAsynEventWithDSMap(resultMap, 70);
 }
 
