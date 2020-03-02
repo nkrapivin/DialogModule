@@ -30,6 +30,7 @@
 #include <gdiplus.h>
 #include <shobjidl.h>
 #include <Commdlg.h>
+#include <commctrl.h>
 #include <comdef.h>
 #include <atlbase.h>
 #include <activscp.h>
@@ -51,6 +52,7 @@ using std::vector;
 using std::size_t;
 
 #pragma comment(lib, "gdiplus.lib")
+#pragma comment(lib, "Comctl32.lib")
 
 namespace dialog_module {
 
@@ -216,6 +218,23 @@ namespace dialog_module {
       if (icon == NULL)
         icon = LoadIcon(NULL, IDI_APPLICATION);
       return icon;
+    }
+  
+    int CALLBACK GetDirectoryProc(HWND hWnd, UINT uMsg, LPARAM lParam, LPARAM lpData) {
+      if (uMsg == BFFM_INITIALIZED) {
+        if (!cpp_wstr_dir.empty())
+          PostMessageW(hWnd, BFFM_SETEXPANDED, true, (LPARAM)cpp_wstr_dir.c_str());
+      }
+      return 0;
+    }
+
+    UINT_PTR CALLBACK GetColorProc(HWND hdlg, UINT uiMsg, WPARAM wParam, LPARAM lParam) {
+      if (uiMsg == WM_INITDIALOG) {
+        if (tstr_gctitle != "")
+          SetWindowTextW(hdlg, cpp_wstr_gctitle.c_str());
+        PostMessageW(hdlg, WM_SETFOCUS, 0, 0);
+      }
+      return false;
     }
 
     LRESULT CALLBACK InputBoxProc(int nCode, WPARAM wParam, LPARAM lParam) {
@@ -412,15 +431,6 @@ namespace dialog_module {
       return dir;
     }
 
-    UINT_PTR CALLBACK GetColorProc(HWND hdlg, UINT uiMsg, WPARAM wParam, LPARAM lParam) {
-      if (uiMsg == WM_INITDIALOG) {
-        if (tstr_gctitle != "")
-          SetWindowTextW(hdlg, cpp_wstr_gctitle.c_str());
-        PostMessageW(hdlg, WM_SETFOCUS, 0, 0);
-      }
-      return false;
-    }
-
     OPENFILENAMEW get_filename_or_filenames_helper(string filter, string fname, string dir, string title, DWORD flags) {
       OPENFILENAMEW ofn;
 
@@ -523,52 +533,24 @@ namespace dialog_module {
     }
 
     string get_directory_helper(string dname, string title) {
-      IFileDialog *selectDirectory;
-      CoCreateInstance(CLSID_FileOpenDialog, NULL, CLSCTX_INPROC_SERVER, IID_PPV_ARGS(&selectDirectory));
+      cpp_wstr_title = widen(title);
+      cpp_wstr_dir = (!dname.empty()) ? widen(dname) : L"";
+      BROWSEINFOW bi = { 0 };
+      LPITEMIDLIST pidl = NULL;
+      wchar_t buffer[MAX_PATH];
 
-      DWORD options;
-      selectDirectory->GetOptions(&options);
-      selectDirectory->SetOptions(options | FOS_PICKFOLDERS | FOS_NOCHANGEDIR | FOS_FORCEFILESYSTEM);
+      bi.hwndOwner = owner_window();
+      bi.pszDisplayName = buffer;
+      bi.pidlRoot = NULL;
+      bi.lpszTitle = cpp_wstr_title.c_str();
+      bi.ulFlags = BIF_RETURNONLYFSDIRS | BIF_NEWDIALOGSTYLE | BIF_NONEWFOLDERBUTTON;
+      bi.lpfn = GetDirectoryProc;
 
-      wstring cpp_wstr_dname = widen(dname);
-      LPWSTR szFilePath = (wchar_t *)cpp_wstr_dname.c_str();
-
-      if (dname == "") {
-        wchar_t buffer[MAX_PATH];
-        if (GetCurrentDirectoryW(MAX_PATH, buffer)) {
-          szFilePath = buffer;
-        }
-      }
-
-      IShellItem *pItem = nullptr;
-      HRESULT hr = ::SHCreateItemFromParsingName(szFilePath, nullptr, IID_PPV_ARGS(&pItem));
-
-      if (SUCCEEDED(hr)) {
-        LPWSTR szName = nullptr;
-        hr = pItem->GetDisplayName(SIGDN_NORMALDISPLAY, &szName);
-        if (SUCCEEDED(hr)) {
-          selectDirectory->SetFolder(pItem);
-          CoTaskMemFree(szName);
-        }
-        pItem->Release();
-      }
-
-      if (title == "") title = "Select Directory";
-      wstring cpp_wstr_capt = widen(title);
-
-      selectDirectory->SetOkButtonLabel(L"Select");
-      selectDirectory->SetTitle(cpp_wstr_capt.c_str());
-      selectDirectory->Show(owner_window());
-
-      pItem = nullptr;
-      hr = selectDirectory->GetResult(&pItem);
-
-      if (SUCCEEDED(hr)) {
-        LPWSTR wstr_result;
-        pItem->GetDisplayName(SIGDN_DESKTOPABSOLUTEPARSING, &wstr_result);
-        pItem->Release();
-
-        return add_slash(narrow(wstr_result));
+      if ((pidl = SHBrowseForFolderW(&bi)) != NULL) {
+        wchar_t full_folder_selection[MAX_PATH];
+        SHGetPathFromIDListW(pidl, full_folder_selection);
+		string result = add_slash(narrow(full_folder_selection));
+        CoTaskMemFree(pidl); return result;
       }
 
       return "";
