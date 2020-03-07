@@ -44,10 +44,10 @@ namespace dialog_module {
     extern "C" int cocoa_show_message(const char *str, bool has_cancel, const char *icon, const char *title);
     extern "C" int cocoa_show_question(const char *str, bool has_cancel, const char *icon, const char *title);
     extern "C" int cocoa_show_attempt(const char *str, const char *icon, const char *title);
-    extern "C" int cocoa_show_error(const char *str, bool abort, const char *icon, const char *title);
-    extern "C" const char *cocoa_input_box(const char *str, const char *def, const char *icon, const char *title);
-    extern "C" const char *cocoa_password_box(const char *str, const char *def, const char *icon, const char *title);
-    extern "C" const char *cocoa_get_open_filename(const char *filter, const char *fname, const char *dir, const char *title, const bool mselect);
+    extern "C" int cocoa_show_error(const char *str, bool _abort, const char *icon, const char *title);
+    extern "C" const char *cocoa_input_box(const char *str, const char *def, const char *icon, const char *title, bool numbers);
+    extern "C" const char *cocoa_password_box(const char *str, const char *def, const char *icon, const char *title, bool numbers);
+    extern "C" const char *cocoa_get_open_filename(const char *filter, const char *fname, const char *dir, const char *title, bool mselect);
     extern "C" const char *cocoa_get_save_filename(const char *filter, const char *fname, const char *dir, const char *title);
     extern "C" const char *cocoa_get_directory(const char *capt, const char *root);
     extern "C" int cocoa_get_color(int defcol, const char *title);
@@ -115,13 +115,13 @@ namespace dialog_module {
   char *get_string(char *str, char *def) {
     string str_str = str;
     string str_def = def;
-    return (char *)cocoa_input_box(str_str.c_str(), str_def.c_str(), current_icon.c_str(), (caption == "") ? "Input Query" : caption.c_str());
+    return (char *)cocoa_input_box(str_str.c_str(), str_def.c_str(), current_icon.c_str(), (caption == "") ? "Input Query" : caption.c_str(), false);
   }
   
   char *get_password(char *str, char *def) {
     string str_str = str;
     string str_def = def;
-    return (char *)cocoa_password_box(str_str.c_str(), str_def.c_str(), current_icon.c_str(), (caption == "") ? "Input Query" : caption.c_str());
+    return (char *)cocoa_password_box(str_str.c_str(), str_def.c_str(), current_icon.c_str(), (caption == "") ? "Input Query" : caption.c_str(), false);
   }
   
   double get_integer(char *str, double def) {
@@ -133,7 +133,7 @@ namespace dialog_module {
 
     string str_str = str;
     string str_def = remove_trailing_zeros(def);
-    double result = strtod(cocoa_input_box(str_str.c_str(), str_def.c_str(), current_icon.c_str(), (caption == "") ? "Input Query" : caption.c_str()), NULL);
+    double result = strtod(cocoa_input_box(str_str.c_str(), str_def.c_str(), current_icon.c_str(), (caption == "") ? "Input Query" : caption.c_str(), true), NULL);
 
     if (result < DIGITS_MIN) result = DIGITS_MIN;
     if (result > DIGITS_MAX) result = DIGITS_MAX;
@@ -150,7 +150,7 @@ namespace dialog_module {
 
     string str_str = str;
     string str_def = remove_trailing_zeros(def);
-    double result = strtod(cocoa_password_box(str_str.c_str(), str_def.c_str(), current_icon.c_str(), (caption == "") ? "Input Query" : caption.c_str()), NULL);
+    double result = strtod(cocoa_password_box(str_str.c_str(), str_def.c_str(), current_icon.c_str(), (caption == "") ? "Input Query" : caption.c_str(), true), NULL);
 
     if (result < DIGITS_MIN) result = DIGITS_MIN;
     if (result > DIGITS_MAX) result = DIGITS_MAX;

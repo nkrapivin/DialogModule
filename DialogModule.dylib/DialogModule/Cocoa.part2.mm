@@ -25,14 +25,10 @@
 */
 
 #import <Cocoa/Cocoa.h>
-#import "NSAlert+SynchronousSheet.h"
+
+#import "EvaluateShell.h"
 
 void *owner = NULL;
-
-void update_child_window_status(NSWindow *child, NSWindow *parent) {
-  if (parent != nil && [child parentWindow] == parent)
-    [parent removeChildWindow:child];
-}
 
 void *cocoa_widget_get_owner() {
   return owner;
@@ -43,7 +39,13 @@ void cocoa_widget_set_owner(void *hwnd) {
 }
 
 int cocoa_show_message(const char *str, bool has_cancel, const char *icon, const char *title) {
-  NSWindow *parent = owner ? (NSWindow *)owner : [[NSApplication sharedApplication] mainWindow];
+  if (![NSThread isMainThread]) {
+    return cstring_to_integer(evaluate_shell(cpp_concat(cpp_concat(cpp_concat(cpp_concat(
+    cpp_concat(cpp_concat(cpp_concat(cpp_concat([[[NSBundle mainBundle] resourcePath]
+    UTF8String], "/dlgmod --"), (has_cancel) ? "show-message-cancelable \"" :
+    "show-message \""), str), "\" \""), icon), "\" \""), title), "\"")));
+  }
+
   NSString *myTitle = [NSString stringWithUTF8String:title];
   NSString *myStr = [NSString stringWithUTF8String:str];
 
@@ -56,7 +58,7 @@ int cocoa_show_message(const char *str, bool has_cancel, const char *icon, const
   if (has_cancel) [alert addButtonWithTitle:@"Cancel"];
   [alert setAlertStyle:1];
 
-  NSModalResponse responseTag = [alert runModalSheetForWindow:parent];
+  NSModalResponse responseTag = [alert runModal];
   [image release];
   [alert release];
 
@@ -67,7 +69,13 @@ int cocoa_show_message(const char *str, bool has_cancel, const char *icon, const
 }
 
 int cocoa_show_question(const char *str, bool has_cancel, const char *icon, const char *title) {
-  NSWindow *parent = owner ? (NSWindow *)owner : [[NSApplication sharedApplication] mainWindow];
+  if (![NSThread isMainThread]) {
+    return cstring_to_integer(evaluate_shell(cpp_concat(cpp_concat(cpp_concat(cpp_concat(
+    cpp_concat(cpp_concat(cpp_concat(cpp_concat([[[NSBundle mainBundle] resourcePath]
+    UTF8String], "/dlgmod --"), (has_cancel) ? "show-question-cancelable \"" :
+    "show-question \""), str), "\" \""), icon), "\" \""), title), "\"")));
+  }
+
   NSString *myTitle = [NSString stringWithUTF8String:title];
   NSString *myStr = [NSString stringWithUTF8String:str];
 
@@ -81,7 +89,7 @@ int cocoa_show_question(const char *str, bool has_cancel, const char *icon, cons
   if (has_cancel) [alert addButtonWithTitle:@"Cancel"];
   [alert setAlertStyle:1];
 
-  NSModalResponse responseTag = [alert runModalSheetForWindow:parent];
+  NSModalResponse responseTag = [alert runModal];
   [image release];
   [alert release];
 
@@ -95,7 +103,12 @@ int cocoa_show_question(const char *str, bool has_cancel, const char *icon, cons
 }
 
 int cocoa_show_attempt(const char *str, const char *icon, const char *title) {
-  NSWindow *parent = owner ? (NSWindow *)owner : [[NSApplication sharedApplication] mainWindow];
+  if (![NSThread isMainThread]) {
+    return cstring_to_integer(evaluate_shell(cpp_concat(cpp_concat(cpp_concat(cpp_concat(
+    cpp_concat(cpp_concat(cpp_concat(cpp_concat([[[NSBundle mainBundle] resourcePath]
+    UTF8String], "/dlgmod --"), "show-attempt \""), str), "\" \""), icon), "\" \""), title), "\"")));
+  }
+
   NSString *myStr = [NSString stringWithUTF8String:str];
   NSAlert *alert = [[NSAlert alloc] init];
   NSImage *image = [[NSImage alloc] initWithContentsOfFile:[NSString stringWithUTF8String:icon]];
@@ -110,7 +123,7 @@ int cocoa_show_attempt(const char *str, const char *icon, const char *title) {
   [alert addButtonWithTitle:@"Cancel"];
   [alert setAlertStyle:2];
 
-  NSModalResponse responseTag = [alert runModalSheetForWindow:parent];
+  NSModalResponse responseTag = [alert runModal];
   [image release];
   [alert release];
 
@@ -120,8 +133,14 @@ int cocoa_show_attempt(const char *str, const char *icon, const char *title) {
   return -1;
 }
 
-int cocoa_show_error(const char *str, bool abort, const char *icon, const char *title) {
-  NSWindow *parent = owner ? (NSWindow *)owner : [[NSApplication sharedApplication] mainWindow];
+int cocoa_show_error(const char *str, bool _abort, const char *icon, const char *title) {
+  if (![NSThread isMainThread]) {
+    return cstring_to_integer(evaluate_shell(cpp_concat(cpp_concat(cpp_concat(cpp_concat(
+    cpp_concat(cpp_concat(cpp_concat(cpp_concat([[[NSBundle mainBundle] resourcePath]
+    UTF8String], "/dlgmod --"), "show-error \""), str), (_abort) ? "\" 1 \"" : "\" 0 \""),
+    icon), "\" \""), title), "\"")));
+  }
+
   NSString *myStr = [NSString stringWithUTF8String:str];
   NSAlert *alert = [[NSAlert alloc] init];
   NSImage *image = [[NSImage alloc] initWithContentsOfFile:[NSString stringWithUTF8String:icon]];
@@ -137,11 +156,11 @@ int cocoa_show_error(const char *str, bool abort, const char *icon, const char *
   [alert addButtonWithTitle:@"Ignore"];
   [alert setAlertStyle:2];
 
-  NSModalResponse responseTag = [alert runModalSheetForWindow:parent];
+  NSModalResponse responseTag = [alert runModal];
   [image release];
   [alert release];
 
-  if (responseTag == NSAlertFirstButtonReturn || abort)
+  if (responseTag == NSAlertFirstButtonReturn || _abort)
     return 1;
 
   if (responseTag == NSAlertSecondButtonReturn)
@@ -150,8 +169,14 @@ int cocoa_show_error(const char *str, bool abort, const char *icon, const char *
   return -1;
 }
 
-const char *cocoa_input_box(const char *str, const char *def, const char *icon, const char *title) {
-  NSWindow *parent = owner ? (NSWindow *)owner : [[NSApplication sharedApplication] mainWindow];
+const char *cocoa_input_box(const char *str, const char *def, const char *icon, const char *title, bool numbers) {
+  if (![NSThread isMainThread]) {
+    return evaluate_shell(cpp_concat(cpp_concat(cpp_concat(cpp_concat(
+    cpp_concat(cpp_concat(cpp_concat(cpp_concat(cpp_concat(cpp_concat([[[NSBundle mainBundle] resourcePath]
+    UTF8String], "/dlgmod --"), (numbers) ? "get-integer \"" : "get-string \""), str), "\" \""), def), "\" \""),
+    icon), "\" \""), title), "\""));
+  }
+
   NSString *myTitle = [NSString stringWithUTF8String:title];
   NSString *myStr = [NSString stringWithUTF8String:str];
   NSString *myDef = [NSString stringWithUTF8String:def];
@@ -173,7 +198,7 @@ const char *cocoa_input_box(const char *str, const char *def, const char *icon, 
   NSView *myAccessoryView = [alert accessoryView];
   [[alert window] setInitialFirstResponder:myAccessoryView];
 
-  NSModalResponse responseTag = [alert runModalSheetForWindow:parent];
+  NSModalResponse responseTag = [alert runModal];
   const char *result;
 
   if (responseTag == NSAlertFirstButtonReturn) {
@@ -189,8 +214,14 @@ const char *cocoa_input_box(const char *str, const char *def, const char *icon, 
   return result;
 }
 
-const char *cocoa_password_box(const char *str, const char *def, const char *icon, const char *title) {
-  NSWindow *parent = owner ? (NSWindow *)owner : [[NSApplication sharedApplication] mainWindow];
+const char *cocoa_password_box(const char *str, const char *def, const char *icon, const char *title, bool numbers) {
+  if (![NSThread isMainThread]) {
+    return evaluate_shell(cpp_concat(cpp_concat(cpp_concat(cpp_concat(
+    cpp_concat(cpp_concat(cpp_concat(cpp_concat(cpp_concat(cpp_concat([[[NSBundle mainBundle] resourcePath]
+    UTF8String], "/dlgmod --"), (numbers) ? "get-passcode \"" : "get-password \""), str), "\" \""), def), "\" \""),
+    icon), "\" \""), title), "\""));
+  }
+
   NSString *myTitle = [NSString stringWithUTF8String:title];
   NSString *myStr = [NSString stringWithUTF8String:str];
   NSString *myDef = [NSString stringWithUTF8String:def];
@@ -212,7 +243,7 @@ const char *cocoa_password_box(const char *str, const char *def, const char *ico
   NSView *myAccessoryView = [alert accessoryView];
   [[alert window] setInitialFirstResponder:myAccessoryView];
 
-  NSModalResponse responseTag = [alert runModalSheetForWindow:parent];
+  NSModalResponse responseTag = [alert runModal];
   const char *result;
 
   if (responseTag == NSAlertFirstButtonReturn) {
@@ -228,8 +259,14 @@ const char *cocoa_password_box(const char *str, const char *def, const char *ico
   return result;
 }
 
-const char *cocoa_get_open_filename(const char *filter, const char *fname, const char *dir, const char *title, const bool mselect) {
-  NSWindow *parent = owner ? (NSWindow *)owner : [[NSApplication sharedApplication] mainWindow];
+const char *cocoa_get_open_filename(const char *filter, const char *fname, const char *dir, const char *title, bool mselect) {
+  if (![NSThread isMainThread]) {
+    return evaluate_shell(cpp_concat(cpp_concat(cpp_concat(cpp_concat(
+    cpp_concat(cpp_concat(cpp_concat(cpp_concat(cpp_concat(cpp_concat([[[NSBundle mainBundle] resourcePath]
+    UTF8String], "/dlgmod --"), (mselect) ? "get-open-filenames-ext \"" : "get-open-filename-ext \""), filter),
+    "\" \""), fname), "\" \""), dir), "\" \""), title), "\""));
+  }
+
   NSOpenPanel *oFilePanel = [NSOpenPanel openPanel];
   [oFilePanel setMessage:[NSString stringWithUTF8String:title]];
   [oFilePanel setDirectoryURL:[NSURL fileURLWithPath:[NSString stringWithUTF8String:dir]]];
@@ -317,22 +354,9 @@ const char *cocoa_get_open_filename(const char *filter, const char *fname, const
   int openPopIndex = 0;
 
   NSModalSession openSession = [NSApp beginModalSessionForWindow:oFilePanel];
-  [parent addChildWindow:oFilePanel ordered:NSWindowAbove];
-
-  if (parent != nil) {
-    CGFloat x = parent.frame.origin.x;
-    CGFloat y = parent.frame.origin.y;
-    CGFloat w1 = parent.frame.size.width;
-    CGFloat h1 = parent.frame.size.height;
-    CGFloat w2 = oFilePanel.frame.size.width;
-    CGFloat h2 = oFilePanel.frame.size.height;
-    [oFilePanel setFrame:NSMakeRect(x + (w1 / 2) - (w2 / 2), y + (h1 / 2) - (h2 / 2), w2, h2) display:YES animate:NO];
-  } else {
-    [oFilePanel center];
-  }
+  [oFilePanel center];
 
   for (;;) {
-    update_child_window_status(oFilePanel, parent);
     if ([NSApp runModalSession:openSession] == NSModalResponseOK) {
       NSURL *theOpenURL;
       NSString *theOpenFile;
@@ -390,7 +414,13 @@ const char *cocoa_get_open_filename(const char *filter, const char *fname, const
 }
 
 const char *cocoa_get_save_filename(const char *filter, const char *fname, const char *dir, const char *title) {
-  NSWindow *parent = owner ? (NSWindow *)owner : [[NSApplication sharedApplication] mainWindow];
+  if (![NSThread isMainThread]) {
+    return evaluate_shell(cpp_concat(cpp_concat(cpp_concat(cpp_concat(
+    cpp_concat(cpp_concat(cpp_concat(cpp_concat(cpp_concat(cpp_concat([[[NSBundle mainBundle] resourcePath]
+    UTF8String], "/dlgmod --"), "get-save-filename-ext \""), filter), "\" \""), fname), "\" \""), dir),
+    "\" \""), title), "\""));
+  }
+
   NSSavePanel *sFilePanel = [NSSavePanel savePanel];
   [sFilePanel setMessage:[NSString stringWithUTF8String:title]];
   [sFilePanel setDirectoryURL:[NSURL fileURLWithPath:[NSString stringWithUTF8String:dir]]];
@@ -472,22 +502,9 @@ const char *cocoa_get_save_filename(const char *filter, const char *fname, const
   int savePopIndex = 0;
 
   NSModalSession saveSession = [NSApp beginModalSessionForWindow:sFilePanel];
-  [parent addChildWindow:sFilePanel ordered:NSWindowAbove];
-
-  if (parent != nil) {
-    CGFloat x = parent.frame.origin.x;
-    CGFloat y = parent.frame.origin.y;
-    CGFloat w1 = parent.frame.size.width;
-    CGFloat h1 = parent.frame.size.height;
-    CGFloat w2 = sFilePanel.frame.size.width;
-    CGFloat h2 = sFilePanel.frame.size.height;
-    [sFilePanel setFrame:NSMakeRect(x + (w1 / 2) - (w2 / 2), y + (h1 / 2) - (h2 / 2), w2, h2) display:YES animate:NO];
-  } else {
-    [sFilePanel center];
-  }
+  [sFilePanel center];
 
   for (;;) {
-    update_child_window_status(sFilePanel, parent);
     if ([NSApp runModalSession:saveSession] == NSModalResponseOK) {
       NSURL *theSaveURL = [sFilePanel URL];
       NSString *theSaveFile = [theSaveURL path];
@@ -526,7 +543,12 @@ const char *cocoa_get_save_filename(const char *filter, const char *fname, const
 }
 
 const char *cocoa_get_directory(const char *capt, const char *root) {
-  NSWindow *parent = owner ? (NSWindow *)owner : [[NSApplication sharedApplication] mainWindow];
+  if (![NSThread isMainThread]) {
+    return evaluate_shell(cpp_concat(cpp_concat(
+    cpp_concat(cpp_concat(cpp_concat(cpp_concat([[[NSBundle mainBundle] resourcePath]
+    UTF8String], "/dlgmod --"), "get-directory-alt \""), capt), "\" \""), root), "\""));
+  }
+
   NSOpenPanel* dirPanel = [NSOpenPanel openPanel];
   [dirPanel setMessage:[NSString stringWithUTF8String:capt]];
   [dirPanel setDirectoryURL:[NSURL fileURLWithPath:[NSString stringWithUTF8String:root]]];
@@ -539,22 +561,9 @@ const char *cocoa_get_directory(const char *capt, const char *root) {
   const char *theFolderResult = "";
 
   NSModalSession dirSession = [NSApp beginModalSessionForWindow:dirPanel];
-  [parent addChildWindow:dirPanel ordered:NSWindowAbove];
-
-  if (parent != nil) {
-    CGFloat x = parent.frame.origin.x;
-    CGFloat y = parent.frame.origin.y;
-    CGFloat w1 = parent.frame.size.width;
-    CGFloat h1 = parent.frame.size.height;
-    CGFloat w2 = dirPanel.frame.size.width;
-    CGFloat h2 = dirPanel.frame.size.height;
-    [dirPanel setFrame:NSMakeRect(x + (w1 / 2) - (w2 / 2), y + (h1 / 2) - (h2 / 2), w2, h2) display:YES animate:NO];
-  } else {
-    [dirPanel center];
-  }
+  [dirPanel center];
     
   for (;;) {
-    update_child_window_status(dirPanel, parent);
     if ([NSApp runModalSession:dirSession] == NSModalResponseOK) {
       NSURL *theFolderURL = [[dirPanel URLs] objectAtIndex:0];
       NSString *theFolderPath = [theFolderURL path];
@@ -575,7 +584,12 @@ const char *cocoa_get_directory(const char *capt, const char *root) {
 }
 
 int cocoa_get_color(int defcol, const char *title) {
-  NSWindow *parent = owner ? (NSWindow *)owner : [[NSApplication sharedApplication] mainWindow];
+  if (![NSThread isMainThread]) {
+    return cstring_to_integer(evaluate_shell(cpp_concat(cpp_concat(
+    cpp_concat(cpp_concat(cpp_concat(cpp_concat([[[NSBundle mainBundle] resourcePath]
+    UTF8String], "/dlgmod --"), "get-color-ext \""), integer_to_cstring(defcol)), "\" \""), title), "\"")));
+  }
+
   int redValue = defcol & 0xFF;
   int greenValue = (defcol >> 8) & 0xFF;
   int blueValue = (defcol >> 16) & 0xFF;
@@ -624,18 +638,8 @@ int cocoa_get_color(int defcol, const char *title) {
   myButtonView.autoresizingMask = NSViewMinXMargin;
 
   NSModalSession colorSession = [NSApp beginModalSessionForWindow:myColorPanel];
-  [parent addChildWindow:myColorPanel ordered:NSWindowAbove];
-
-  if (parent != nil) {
-    CGFloat x = parent.frame.origin.x;
-    CGFloat y = parent.frame.origin.y;
-    CGFloat w = parent.frame.size.width;
-    CGFloat h = parent.frame.size.height;
-    [myColorPanel setFrame:NSMakeRect(x + (w / 2) - (229 / 2), y + (h / 2) - ((399 + buttonHeight) / 2), 229, 399 + buttonHeight) display:YES animate:NO];
-  } else {
-    [myColorPanel setFrame:NSMakeRect(0, 0, 229, 399 + buttonHeight) display:YES animate:NO];
-    [myColorPanel center];
-  }
+  [myColorPanel setFrame:NSMakeRect(0, 0, 229, 399 + buttonHeight) display:YES animate:NO];
+  [myColorPanel center];
 
   CGFloat r, g, b, a;
   NSColor *myColor = myDefCol;
@@ -647,7 +651,6 @@ int cocoa_get_color(int defcol, const char *title) {
   bool colorOKPressed = false;
 
   for (;;) {
-    update_child_window_status(myColorPanel, parent);
     if ([NSApp runModalSession:colorSession] != NSModalResponseContinue)
       break;
     
