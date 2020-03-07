@@ -26,6 +26,8 @@
 
 #include "EvaluateShell.h"
 
+#include <sys/stat.h>
+
 #include <cstdio>
 #include <cstdlib>
 
@@ -36,11 +38,17 @@ using std::string;
 const char *integer_to_cstring(int n) {
   static string str_result;
   str_result = std::to_string(n);
-  return (char *)str_result.c_str();
+  return str_result.c_str();
 }
 
 int cstring_to_integer(const char *s) {
   return (int)strtol(s, NULL, 10);
+}
+
+bool file_exists(const char *fname) {
+  struct stat sb;
+  return (stat(fname, &sb) == 0 &&
+    S_ISREG(sb.st_mode) != 0);
 }
 
 const char *cpp_concat(const char *s1, const char *s2) {
