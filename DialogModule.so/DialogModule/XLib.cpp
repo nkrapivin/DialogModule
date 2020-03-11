@@ -160,6 +160,9 @@ Window XGetActiveWindow(Display *display) {
   window = RootWindow(display, screen);
   if (window == 0) return 0;
 
+  // TODO: macOS does not have this atom; this function
+  // needs to find the window id some other way to work,
+  // perhaps by printing the window id in zenity itself.
   filter_atom = XInternAtom(display, "_NET_ACTIVE_WINDOW", True);
   status = XGetWindowProperty(display, window, filter_atom, 0, 1000, False, AnyPropertyType, &actual_type, &actual_format, &nitems, &bytes_after, &prop);
 
@@ -182,6 +185,9 @@ pid_t XGetActiveProcessId(Display *display) {
   int actual_format, status;
   unsigned long nitems, bytes_after;
 
+  // TODO: macOS does not have this atom; this function
+  // needs to find the process id some other way to work.
+  // This might require using Objective-C, unfortunately.
   filter_atom = XInternAtom(display, "_NET_WM_PID", True);
   status = XGetWindowProperty(display, window, filter_atom, 0, 1000, False, AnyPropertyType, &actual_type, &actual_format, &nitems, &bytes_after, &prop);
 
@@ -235,7 +241,7 @@ string filename_ext(string fname) {
   return fname.substr(fp);
 }
 
-pid_t IsPpidOfPidHelperFunc(pid_t pid, pid_t ppid) {
+bool WaitForChildPidOfPidToExist(pid_t pid, pid_t ppid) {
   while (pid != ppid) {
     if (pid <= 1) break;
     #ifdef __APPLE__ // macOS
@@ -259,11 +265,7 @@ pid_t IsPpidOfPidHelperFunc(pid_t pid, pid_t ppid) {
     free(proc_info);
     #endif
   }
-  return pid;
-}
-
-bool IsPpidOfPid(pid_t pid, pid_t ppid) {
-  return (IsPpidOfPidHelperFunc(pid, ppid) == ppid);
+  return (pid == ppid);
 }
 
 pid_t modify_dialog(pid_t ppid) {
@@ -271,7 +273,7 @@ pid_t modify_dialog(pid_t ppid) {
   if ((pid = fork()) == 0) {
     Display *display = XOpenDisplay(NULL);
     Window window, parent = owner ? (Window)owner : XGetActiveWindow(display);
-    while (!IsPpidOfPid(XGetActiveProcessId(display), ppid));
+    while (!WaitForChildPidOfPidToExist(XGetActiveProcessId(display), ppid));
     window = XGetActiveWindow(display);
     
     Atom window_type = XInternAtom(display, "_NET_WM_WINDOW_TYPE", True);
