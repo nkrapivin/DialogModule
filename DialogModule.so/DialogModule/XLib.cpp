@@ -466,8 +466,8 @@ int show_message_helperfunc(char *str) {
   
   Display *display = XOpenDisplay(NULL);
   string window = owner ? ((dm_dialogengine == dm_zenity) ? "echo " : "") +
-    remove_trailing_zeros((long)owner) : 
-    remove_trailing_zeros((long)XGetActiveWindow(display));
+    std::to_string((unsigned long)owner) : 
+    std::to_string((unsigned long)XGetActiveWindow(display));
   XCloseDisplay(display);
 
   if (message_cancel)
@@ -514,8 +514,8 @@ int show_question_helperfunc(char *str) {
   
   Display *display = XOpenDisplay(NULL);
   string window = owner ? ((dm_dialogengine == dm_zenity) ? "echo " : "") + 
-    remove_trailing_zeros((long)owner) : 
-    remove_trailing_zeros((long)XGetActiveWindow(display));
+    std::to_string((unsigned long)owner) : 
+    std::to_string((unsigned long)XGetActiveWindow(display));
   XCloseDisplay(display);
 
   if (dm_dialogengine == dm_zenity) {
@@ -576,8 +576,8 @@ int show_attempt(char *str) {
   
   Display *display = XOpenDisplay(NULL);
   string window = owner ? ((dm_dialogengine == dm_zenity) ? "echo " : "") + 
-    remove_trailing_zeros((long)owner) : 
-    remove_trailing_zeros((long)XGetActiveWindow(display));
+    std::to_string((unsigned long)owner) : 
+    std::to_string((unsigned long)XGetActiveWindow(display));
   XCloseDisplay(display);
 
   if (dm_dialogengine == dm_zenity) {
@@ -611,8 +611,8 @@ int show_error(char *str, bool abort) {
   
   Display *display = XOpenDisplay(NULL);
   string window = owner ? ((dm_dialogengine == dm_zenity) ? "echo " : "") + 
-    remove_trailing_zeros((long)owner) : 
-    remove_trailing_zeros((long)XGetActiveWindow(display));
+    std::to_string((unsigned long)owner) : 
+    std::to_string((unsigned long)XGetActiveWindow(display));
   XCloseDisplay(display);
 
   if (dm_dialogengine == dm_zenity) {
@@ -654,8 +654,8 @@ char *get_string(char *str, char *def) {
   
   Display *display = XOpenDisplay(NULL);
   string window = owner ? ((dm_dialogengine == dm_zenity) ? "echo " : "") + 
-    remove_trailing_zeros((long)owner) : 
-    remove_trailing_zeros((long)XGetActiveWindow(display));
+    std::to_string((unsigned long)owner) : 
+    std::to_string((unsigned long)XGetActiveWindow(display));
   XCloseDisplay(display);
 
   if (dm_dialogengine == dm_zenity) {
@@ -688,8 +688,8 @@ char *get_password(char *str, char *def) {
   
   Display *display = XOpenDisplay(NULL);
   string window = owner ? ((dm_dialogengine == dm_zenity) ? "echo " : "") + 
-    remove_trailing_zeros((long)owner) : 
-    remove_trailing_zeros((long)XGetActiveWindow(display));
+    std::to_string((unsigned long)owner) : 
+    std::to_string((unsigned long)XGetActiveWindow(display));
   XCloseDisplay(display);
 
   if (dm_dialogengine == dm_zenity) {
@@ -758,8 +758,8 @@ char *get_open_filename(char *filter, char *fname) {
   
   Display *display = XOpenDisplay(NULL);
   string window = owner ? ((dm_dialogengine == dm_zenity) ? "echo " : "") + 
-    remove_trailing_zeros((long)owner) : 
-    remove_trailing_zeros((long)XGetActiveWindow(display));
+    std::to_string((unsigned long)owner) : 
+    std::to_string((unsigned long)XGetActiveWindow(display));
   XCloseDisplay(display);
 
   if (dm_dialogengine == dm_zenity) {
@@ -802,8 +802,8 @@ char *get_open_filename_ext(char *filter, char *fname, char *dir, char *title) {
   
   Display *display = XOpenDisplay(NULL);
   string window = owner ? ((dm_dialogengine == dm_zenity) ? "echo " : "") + 
-    remove_trailing_zeros((long)owner) : 
-    remove_trailing_zeros((long)XGetActiveWindow(display));
+    std::to_string((unsigned long)owner) : 
+    std::to_string((unsigned long)XGetActiveWindow(display));
   XCloseDisplay(display);
 
   string str_path = fname;
@@ -849,8 +849,8 @@ char *get_open_filenames(char *filter, char *fname) {
   
   Display *display = XOpenDisplay(NULL);
   string window = owner ? ((dm_dialogengine == dm_zenity) ? "echo " : "") + 
-    remove_trailing_zeros((long)owner) : 
-    remove_trailing_zeros((long)XGetActiveWindow(display));
+    std::to_string((unsigned long)owner) : 
+    std::to_string((unsigned long)XGetActiveWindow(display));
   XCloseDisplay(display);
 
   if (dm_dialogengine == dm_zenity) {
@@ -900,8 +900,8 @@ char *get_open_filenames_ext(char *filter, char *fname, char *dir, char *title) 
   
   Display *display = XOpenDisplay(NULL);
   string window = owner ? ((dm_dialogengine == dm_zenity) ? "echo " : "") + 
-    remove_trailing_zeros((long)owner) : 
-    remove_trailing_zeros((long)XGetActiveWindow(display));
+    std::to_string((unsigned long)owner) : 
+    std::to_string((unsigned long)XGetActiveWindow(display));
   XCloseDisplay(display);
 
   string str_path = fname;
@@ -954,8 +954,8 @@ char *get_save_filename(char *filter, char *fname) {
   
   Display *display = XOpenDisplay(NULL);
   string window = owner ? ((dm_dialogengine == dm_zenity) ? "echo " : "") + 
-    remove_trailing_zeros((long)owner) : 
-    remove_trailing_zeros((long)XGetActiveWindow(display));
+    std::to_string((unsigned long)owner) : 
+    std::to_string((unsigned long)XGetActiveWindow(display));
   XCloseDisplay(display);
 
   if (dm_dialogengine == dm_zenity) {
@@ -994,8 +994,8 @@ char *get_save_filename_ext(char *filter, char *fname, char *dir, char *title) {
   
   Display *display = XOpenDisplay(NULL);
   string window = owner ? ((dm_dialogengine == dm_zenity) ? "echo " : "") + 
-    remove_trailing_zeros((long)owner) : 
-    remove_trailing_zeros((long)XGetActiveWindow(display));
+    std::to_string((unsigned long)owner) : 
+    std::to_string((unsigned long)XGetActiveWindow(display));
   XCloseDisplay(display);
 
   string str_path = fname;
@@ -1038,8 +1038,8 @@ char *get_directory(char *dname) {
   
   Display *display = XOpenDisplay(NULL);
   string window = owner ? ((dm_dialogengine == dm_zenity) ? "echo " : "") + 
-    remove_trailing_zeros((long)owner) : 
-    remove_trailing_zeros((long)XGetActiveWindow(display));
+    std::to_string((unsigned long)owner) : 
+    std::to_string((unsigned long)XGetActiveWindow(display));
   XCloseDisplay(display);
 
   if (dm_dialogengine == dm_zenity) {
@@ -1077,8 +1077,8 @@ char *get_directory_alt(char *capt, char *root) {
   
   Display *display = XOpenDisplay(NULL);
   string window = owner ? ((dm_dialogengine == dm_zenity) ? "echo " : "") + 
-    remove_trailing_zeros((long)owner) : 
-    remove_trailing_zeros((long)XGetActiveWindow(display));
+    std::to_string((unsigned long)owner) : 
+    std::to_string((unsigned long)XGetActiveWindow(display));
   XCloseDisplay(display);
 
   if (dm_dialogengine == dm_zenity) {
@@ -1116,8 +1116,8 @@ int get_color(int defcol) {
   
   Display *display = XOpenDisplay(NULL);
   string window = owner ? ((dm_dialogengine == dm_zenity) ? "echo " : "") + 
-    remove_trailing_zeros((long)owner) : 
-    remove_trailing_zeros((long)XGetActiveWindow(display));
+    std::to_string((unsigned long)owner) : 
+    std::to_string((unsigned long)XGetActiveWindow(display));
   XCloseDisplay(display);
 
   int red; int green; int blue;
@@ -1193,8 +1193,8 @@ int get_color_ext(int defcol, char *title) {
   
   Display *display = XOpenDisplay(NULL);
   string window = owner ? ((dm_dialogengine == dm_zenity) ? "echo " : "") + 
-    remove_trailing_zeros((long)owner) : 
-    remove_trailing_zeros((long)XGetActiveWindow(display));
+    std::to_string((unsigned long)owner) : 
+    std::to_string((unsigned long)XGetActiveWindow(display));
   XCloseDisplay(display);
 
   int red; int green; int blue;
