@@ -45,9 +45,7 @@
 #include <string>
 #include <algorithm>
 
-#ifdef __APPLE__ // macOS
-#include <libproc.h>
-#elif defined(__linux__) // Linux
+#if defined(__linux__) // Linux
 #include <proc/readproc.h>
 #else // BSD
 #include <sys/user.h>
@@ -160,9 +158,6 @@ Window XGetActiveWindow(Display *display) {
   window = RootWindow(display, screen);
   if (window == 0) return 0;
 
-  // TODO: macOS does not have this atom; this function
-  // needs to find the window id some other way to work,
-  // perhaps by printing the window id in zenity itself.
   filter_atom = XInternAtom(display, "_NET_ACTIVE_WINDOW", True);
   status = XGetWindowProperty(display, window, filter_atom, 0, 1000, False, AnyPropertyType, &actual_type, &actual_format, &nitems, &bytes_after, &prop);
 
@@ -185,9 +180,6 @@ pid_t XGetActiveProcessId(Display *display) {
   int actual_format, status;
   unsigned long nitems, bytes_after;
 
-  // TODO: macOS does not have this atom; this function
-  // needs to find the process id some other way to work.
-  // This might require using Objective-C, unfortunately.
   filter_atom = XInternAtom(display, "_NET_WM_PID", True);
   status = XGetWindowProperty(display, window, filter_atom, 0, 1000, False, AnyPropertyType, &actual_type, &actual_format, &nitems, &bytes_after, &prop);
 
@@ -244,12 +236,7 @@ string filename_ext(string fname) {
 bool WaitForChildPidOfPidToExist(pid_t pid, pid_t ppid) {
   while (pid != ppid) {
     if (pid <= 1) break;
-    #ifdef __APPLE__ // macOS
-    proc_bsdinfo proc_info;
-    if (proc_pidinfo(pid, PROC_PIDTBSDINFO, 0, &proc_info, sizeof(proc_info)) > 0) {
-      pid = proc_info.pbi_ppid;
-    }
-    #elif defined (__linux__) // Linux
+    #ifdef __linux__ // Linux
     proc_t proc_info;
     memset(&proc_info, 0, sizeof(proc_info));
     PROCTAB *pt_ptr = openproc(PROC_FILLSTATUS | PROC_PID, &pid);
