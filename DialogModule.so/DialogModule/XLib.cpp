@@ -45,7 +45,7 @@
 #include <string>
 #include <algorithm>
 
-#if defined(__linux__) // Linux
+#ifdef __linux__ // Linux
 #include <proc/readproc.h>
 #else // BSD
 #include <sys/user.h>
