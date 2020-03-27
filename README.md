@@ -20,7 +20,7 @@ Debian-based Linux distributions: sudo apt-get install zenity
 
 RedHat-based Linux distributions: sudo yum install zenity
 
-Arch-based Linux distributions: sudo pacman -S zenity
+Arch-based Linux distributions: sudo pacman -Sy zenity
 
 FreeBSD-based BSD distributions: sudo pkg ins zenity
 
@@ -32,7 +32,7 @@ Debian-based Linux distributions: sudo apt-get install kdialog
 
 RedHat-based Linux distributions: sudo yum install kdialog
 
-Arch-based Linux distributions: sudo pacman -S kdialog
+Arch-based Linux distributions: sudo pacman -Sy kdialog
 
 FreeBSD-based BSD distributions: sudo pkg ins kdialog
 
