@@ -26,9 +26,46 @@
 
 #import <Cocoa/Cocoa.h>
 
-#import "EvaluateShell.h"
+#import <stdio.h>
+#import <stdlib.h>
 
 void *owner = NULL;
+
+int cstring_to_integer(const char *cstr) {
+  return (int)strtol(cstr, NULL, 10);
+}
+
+const char *integer_to_cstring(int numb) {
+  return [[@(numb) stringValue] UTF8String];
+}
+
+const char *cstring_concat(const char *cstr1, const char *cstr2) {
+  return [[[NSString stringWithUTF8String:cstr1]
+  stringByAppendingString:[NSString stringWithUTF8String:cstr2]] UTF8String];
+}
+
+bool file_exists(const char *fname) {
+  NSFileManager *fileManager = [NSFileManager defaultManager];
+  return [fileManager fileExistsAtPath:[NSString stringWithUTF8String:fname]];
+}
+
+const char *evaluate_shell(const char *command) {
+  char *buffer = NULL;
+  size_t buffer_size = 0;
+  NSString *result = @"";
+
+  FILE *file = popen(command, "r");
+  while (getline(&buffer, &buffer_size, file) != -1)
+    result = [result stringByAppendingString:[NSString stringWithUTF8String:buffer]];
+
+  free(buffer);
+  pclose(file);
+
+  if ([result hasSuffix:@"\n"])
+    [result substringToIndex:[result length] - 1];
+  
+  return [result UTF8String];
+}
 
 void *cocoa_widget_get_owner() {
   return owner;
@@ -40,11 +77,11 @@ void cocoa_widget_set_owner(void *hwnd) {
 
 int cocoa_show_message(const char *str, bool has_cancel, const char *icon, const char *title) {
   if (![NSThread isMainThread]) {
-    evaluate_shell(cpp_concat(cpp_concat("chmod 777 \"", [[[NSBundle mainBundle] resourcePath] UTF8String]), "/dlgmod\""));
+    evaluate_shell(cstring_concat(cstring_concat("chmod 777 \"", [[[NSBundle mainBundle] resourcePath] UTF8String]), "/dlgmod\""));
     const char *defaultIcon = [[[[NSBundle mainBundle] infoDictionary] valueForKey:@"CFBundleIconFile"] UTF8String];
     const char *currentIcon = (file_exists(icon)) ? icon : defaultIcon;
-    return cstring_to_integer(evaluate_shell(cpp_concat(cpp_concat(cpp_concat(cpp_concat(
-    cpp_concat(cpp_concat(cpp_concat(cpp_concat(cpp_concat("\"", [[[NSBundle mainBundle] resourcePath]
+    return cstring_to_integer(evaluate_shell(cstring_concat(cstring_concat(cstring_concat(cstring_concat(
+    cstring_concat(cstring_concat(cstring_concat(cstring_concat(cstring_concat("\"", [[[NSBundle mainBundle] resourcePath]
     UTF8String]), "/dlgmod\" --"), (has_cancel) ? "show-message-cancelable \"" :
     "show-message \""), str), "\" \""), currentIcon), "\" \""), title), "\"")));
   }
@@ -73,11 +110,11 @@ int cocoa_show_message(const char *str, bool has_cancel, const char *icon, const
 
 int cocoa_show_question(const char *str, bool has_cancel, const char *icon, const char *title) {
   if (![NSThread isMainThread]) {
-    evaluate_shell(cpp_concat(cpp_concat("chmod 777 \"", [[[NSBundle mainBundle] resourcePath] UTF8String]), "/dlgmod\""));
+    evaluate_shell(cstring_concat(cstring_concat("chmod 777 \"", [[[NSBundle mainBundle] resourcePath] UTF8String]), "/dlgmod\""));
     const char *defaultIcon = [[[[NSBundle mainBundle] infoDictionary] valueForKey:@"CFBundleIconFile"] UTF8String];
     const char *currentIcon = (file_exists(icon)) ? icon : defaultIcon;
-    return cstring_to_integer(evaluate_shell(cpp_concat(cpp_concat(cpp_concat(cpp_concat(
-    cpp_concat(cpp_concat(cpp_concat(cpp_concat(cpp_concat("\"", [[[NSBundle mainBundle] resourcePath]
+    return cstring_to_integer(evaluate_shell(cstring_concat(cstring_concat(cstring_concat(cstring_concat(
+    cstring_concat(cstring_concat(cstring_concat(cstring_concat(cstring_concat("\"", [[[NSBundle mainBundle] resourcePath]
     UTF8String]), "/dlgmod\" --"), (has_cancel) ? "show-question-cancelable \"" :
     "show-question \""), str), "\" \""), currentIcon), "\" \""), title), "\"")));
   }
@@ -110,11 +147,11 @@ int cocoa_show_question(const char *str, bool has_cancel, const char *icon, cons
 
 int cocoa_show_attempt(const char *str, const char *icon, const char *title) {
   if (![NSThread isMainThread]) {
-    evaluate_shell(cpp_concat(cpp_concat("chmod 777 \"", [[[NSBundle mainBundle] resourcePath] UTF8String]), "/dlgmod\""));
+    evaluate_shell(cstring_concat(cstring_concat("chmod 777 \"", [[[NSBundle mainBundle] resourcePath] UTF8String]), "/dlgmod\""));
     const char *defaultIcon = [[[[NSBundle mainBundle] infoDictionary] valueForKey:@"CFBundleIconFile"] UTF8String];
     const char *currentIcon = (file_exists(icon)) ? icon : defaultIcon;
-    return cstring_to_integer(evaluate_shell(cpp_concat(cpp_concat(cpp_concat(cpp_concat(
-    cpp_concat(cpp_concat(cpp_concat(cpp_concat(cpp_concat("\"", [[[NSBundle mainBundle] resourcePath]
+    return cstring_to_integer(evaluate_shell(cstring_concat(cstring_concat(cstring_concat(cstring_concat(
+    cstring_concat(cstring_concat(cstring_concat(cstring_concat(cstring_concat("\"", [[[NSBundle mainBundle] resourcePath]
     UTF8String]), "/dlgmod\" --"), "show-attempt \""), str), "\" \""), currentIcon), "\" \""), title), "\"")));
   }
 
@@ -144,11 +181,11 @@ int cocoa_show_attempt(const char *str, const char *icon, const char *title) {
 
 int cocoa_show_error(const char *str, bool _abort, const char *icon, const char *title) {
   if (![NSThread isMainThread]) {
-    evaluate_shell(cpp_concat(cpp_concat("chmod 777 \"", [[[NSBundle mainBundle] resourcePath] UTF8String]), "/dlgmod\""));
+    evaluate_shell(cstring_concat(cstring_concat("chmod 777 \"", [[[NSBundle mainBundle] resourcePath] UTF8String]), "/dlgmod\""));
     const char *defaultIcon = [[[[NSBundle mainBundle] infoDictionary] valueForKey:@"CFBundleIconFile"] UTF8String];
     const char *currentIcon = (file_exists(icon)) ? icon : defaultIcon;
-    return cstring_to_integer(evaluate_shell(cpp_concat(cpp_concat(cpp_concat(cpp_concat(
-    cpp_concat(cpp_concat(cpp_concat(cpp_concat(cpp_concat("\"", [[[NSBundle mainBundle] resourcePath]
+    return cstring_to_integer(evaluate_shell(cstring_concat(cstring_concat(cstring_concat(cstring_concat(
+    cstring_concat(cstring_concat(cstring_concat(cstring_concat(cstring_concat("\"", [[[NSBundle mainBundle] resourcePath]
     UTF8String]), "/dlgmod\" --"), "show-error \""), str), (_abort) ? "\" 1 \"" : "\" 0 \""),
     currentIcon), "\" \""), title), "\"")));
   }
@@ -183,11 +220,11 @@ int cocoa_show_error(const char *str, bool _abort, const char *icon, const char 
 
 const char *cocoa_input_box(const char *str, const char *def, const char *icon, const char *title, bool numbers) {
   if (![NSThread isMainThread]) {
-    evaluate_shell(cpp_concat(cpp_concat("chmod 777 \"", [[[NSBundle mainBundle] resourcePath] UTF8String]), "/dlgmod\""));
+    evaluate_shell(cstring_concat(cstring_concat("chmod 777 \"", [[[NSBundle mainBundle] resourcePath] UTF8String]), "/dlgmod\""));
     const char *defaultIcon = [[[[NSBundle mainBundle] infoDictionary] valueForKey:@"CFBundleIconFile"] UTF8String];
     const char *currentIcon = (file_exists(icon)) ? icon : defaultIcon;
-    return evaluate_shell(cpp_concat(cpp_concat(cpp_concat(cpp_concat(
-    cpp_concat(cpp_concat(cpp_concat(cpp_concat(cpp_concat(cpp_concat(cpp_concat("\"", [[[NSBundle mainBundle] resourcePath]
+    return evaluate_shell(cstring_concat(cstring_concat(cstring_concat(cstring_concat(
+    cstring_concat(cstring_concat(cstring_concat(cstring_concat(cstring_concat(cstring_concat(cstring_concat("\"", [[[NSBundle mainBundle] resourcePath]
     UTF8String]), "/dlgmod\" --"), (numbers) ? "get-integer \"" : "get-string \""), str), "\" \""), def), "\" \""),
     currentIcon), "\" \""), title), "\""));
   }
@@ -231,11 +268,11 @@ const char *cocoa_input_box(const char *str, const char *def, const char *icon, 
 
 const char *cocoa_password_box(const char *str, const char *def, const char *icon, const char *title, bool numbers) {
   if (![NSThread isMainThread]) {
-    evaluate_shell(cpp_concat(cpp_concat("chmod 777 \"", [[[NSBundle mainBundle] resourcePath] UTF8String]), "/dlgmod\""));
+    evaluate_shell(cstring_concat(cstring_concat("chmod 777 \"", [[[NSBundle mainBundle] resourcePath] UTF8String]), "/dlgmod\""));
     const char *defaultIcon = [[[[NSBundle mainBundle] infoDictionary] valueForKey:@"CFBundleIconFile"] UTF8String];
     const char *currentIcon = (file_exists(icon)) ? icon : defaultIcon;
-    return evaluate_shell(cpp_concat(cpp_concat(cpp_concat(cpp_concat(
-    cpp_concat(cpp_concat(cpp_concat(cpp_concat(cpp_concat(cpp_concat(cpp_concat("\"", [[[NSBundle mainBundle] resourcePath]
+    return evaluate_shell(cstring_concat(cstring_concat(cstring_concat(cstring_concat(
+    cstring_concat(cstring_concat(cstring_concat(cstring_concat(cstring_concat(cstring_concat(cstring_concat("\"", [[[NSBundle mainBundle] resourcePath]
     UTF8String]), "/dlgmod\" --"), (numbers) ? "get-passcode \"" : "get-password \""), str), "\" \""), def), "\" \""),
     currentIcon), "\" \""), title), "\""));
   }
@@ -279,9 +316,9 @@ const char *cocoa_password_box(const char *str, const char *def, const char *ico
 
 const char *cocoa_get_open_filename(const char *filter, const char *fname, const char *dir, const char *title, bool mselect) {
   if (![NSThread isMainThread]) {
-    evaluate_shell(cpp_concat(cpp_concat("chmod 777 \"", [[[NSBundle mainBundle] resourcePath] UTF8String]), "/dlgmod\""));
-    return evaluate_shell(cpp_concat(cpp_concat(cpp_concat(cpp_concat(
-    cpp_concat(cpp_concat(cpp_concat(cpp_concat(cpp_concat(cpp_concat(cpp_concat("\"", [[[NSBundle mainBundle] resourcePath]
+    evaluate_shell(cstring_concat(cstring_concat("chmod 777 \"", [[[NSBundle mainBundle] resourcePath] UTF8String]), "/dlgmod\""));
+    return evaluate_shell(cstring_concat(cstring_concat(cstring_concat(cstring_concat(
+    cstring_concat(cstring_concat(cstring_concat(cstring_concat(cstring_concat(cstring_concat(cstring_concat("\"", [[[NSBundle mainBundle] resourcePath]
     UTF8String]), "/dlgmod\" --"), (mselect) ? "get-open-filenames-ext \"" : "get-open-filename-ext \""), filter),
     "\" \""), fname), "\" \""), dir), "\" \""), title), "\""));
   }
@@ -434,9 +471,9 @@ const char *cocoa_get_open_filename(const char *filter, const char *fname, const
 
 const char *cocoa_get_save_filename(const char *filter, const char *fname, const char *dir, const char *title) {
   if (![NSThread isMainThread]) {
-    evaluate_shell(cpp_concat(cpp_concat("chmod 777 \"", [[[NSBundle mainBundle] resourcePath] UTF8String]), "/dlgmod\""));
-    return evaluate_shell(cpp_concat(cpp_concat(cpp_concat(cpp_concat(
-    cpp_concat(cpp_concat(cpp_concat(cpp_concat(cpp_concat(cpp_concat(cpp_concat("\"", [[[NSBundle mainBundle] resourcePath]
+    evaluate_shell(cstring_concat(cstring_concat("chmod 777 \"", [[[NSBundle mainBundle] resourcePath] UTF8String]), "/dlgmod\""));
+    return evaluate_shell(cstring_concat(cstring_concat(cstring_concat(cstring_concat(
+    cstring_concat(cstring_concat(cstring_concat(cstring_concat(cstring_concat(cstring_concat(cstring_concat("\"", [[[NSBundle mainBundle] resourcePath]
     UTF8String]), "/dlgmod\" --"), "get-save-filename-ext \""), filter), "\" \""), fname), "\" \""), dir),
     "\" \""), title), "\""));
   }
@@ -564,9 +601,9 @@ const char *cocoa_get_save_filename(const char *filter, const char *fname, const
 
 const char *cocoa_get_directory(const char *capt, const char *root) {
   if (![NSThread isMainThread]) {
-    evaluate_shell(cpp_concat(cpp_concat("chmod 777 \"", [[[NSBundle mainBundle] resourcePath] UTF8String]), "/dlgmod\""));
-    return evaluate_shell(cpp_concat(cpp_concat(
-    cpp_concat(cpp_concat(cpp_concat(cpp_concat(cpp_concat("\"", [[[NSBundle mainBundle] resourcePath]
+    evaluate_shell(cstring_concat(cstring_concat("chmod 777 \"", [[[NSBundle mainBundle] resourcePath] UTF8String]), "/dlgmod\""));
+    return evaluate_shell(cstring_concat(cstring_concat(
+    cstring_concat(cstring_concat(cstring_concat(cstring_concat(cstring_concat("\"", [[[NSBundle mainBundle] resourcePath]
     UTF8String]), "/dlgmod\" --"), "get-directory-alt \""), capt), "\" \""), root), "\""));
   }
 
@@ -606,9 +643,9 @@ const char *cocoa_get_directory(const char *capt, const char *root) {
 
 int cocoa_get_color(int defcol, const char *title) {
   if (![NSThread isMainThread]) {
-    evaluate_shell(cpp_concat(cpp_concat("chmod 777 \"", [[[NSBundle mainBundle] resourcePath] UTF8String]), "/dlgmod\""));
-    return cstring_to_integer(evaluate_shell(cpp_concat(cpp_concat(
-    cpp_concat(cpp_concat(cpp_concat(cpp_concat(cpp_concat("\"", [[[NSBundle mainBundle] resourcePath]
+    evaluate_shell(cstring_concat(cstring_concat("chmod 777 \"", [[[NSBundle mainBundle] resourcePath] UTF8String]), "/dlgmod\""));
+    return cstring_to_integer(evaluate_shell(cstring_concat(cstring_concat(
+    cstring_concat(cstring_concat(cstring_concat(cstring_concat(cstring_concat("\"", [[[NSBundle mainBundle] resourcePath]
     UTF8String]), "/dlgmod\" --"), "get-color-ext \""), integer_to_cstring(defcol)), "\" \""), title), "\"")));
   }
 
