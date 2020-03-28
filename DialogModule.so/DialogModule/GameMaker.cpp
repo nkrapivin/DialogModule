@@ -87,183 +87,244 @@ EXPORTED_FUNCTION void RegisterCallbacks(char *arg1, char *arg2, char *arg3, cha
 namespace {
 
 unsigned dialog_identifier = 100;
+bool enable_dialog_creation = true;
 void(*CreateAsynEventWithDSMap)(int, int);
 int(*CreateDsMap)(int _num, ...);
 bool(*DsMapAddDouble)(int _index, char *_pKey, double value);
 bool(*DsMapAddString)(int _index, char *_pKey, char *pVal);
 
 void show_message_threaded(char *str, unsigned id) {
+  if (!enable_dialog_creation) return;
+  enable_dialog_creation = false;
   double result = show_message(str);
   int resultMap = CreateDsMap(0);
   DsMapAddDouble(resultMap, (char *)"id", id);
   DsMapAddDouble(resultMap, (char *)"status", result);
   CreateAsynEventWithDSMap(resultMap, 63);
+  enable_dialog_creation = true;
 }
 
 void show_message_cancelable_threaded(char *str, unsigned id) {
+  if (!enable_dialog_creation) return;
+  enable_dialog_creation = false;
   double result = show_message_cancelable(str);
   int resultMap = CreateDsMap(0);
   DsMapAddDouble(resultMap, (char *)"id", id);
   DsMapAddDouble(resultMap, (char *)"status", result);
   CreateAsynEventWithDSMap(resultMap, 63);
+  enable_dialog_creation = true;
 }
 
 void show_question_threaded(char *str, unsigned id) {
+  if (!enable_dialog_creation) return;
+  enable_dialog_creation = false;
   double result = show_question(str);
   int resultMap = CreateDsMap(0);
   DsMapAddDouble(resultMap, (char *)"id", id);
   DsMapAddDouble(resultMap, (char *)"status", result);
   CreateAsynEventWithDSMap(resultMap, 63);
+  enable_dialog_creation = true;
 }
 
 void show_question_cancelable_threaded(char *str, unsigned id) {
+  if (!enable_dialog_creation) return;
+  enable_dialog_creation = false;
   double result = show_question_cancelable(str);
   int resultMap = CreateDsMap(0);
   DsMapAddDouble(resultMap, (char *)"id", id);
   DsMapAddDouble(resultMap, (char *)"status", result);
   CreateAsynEventWithDSMap(resultMap, 63);
+  enable_dialog_creation = true;
 }
 
 void show_attempt_threaded(char *str, unsigned id) {
+  if (!enable_dialog_creation) return;
+  enable_dialog_creation = false;
   double result = show_attempt(str);
   int resultMap = CreateDsMap(0);
   DsMapAddDouble(resultMap, (char *)"id", id);
   DsMapAddDouble(resultMap, (char *)"status", result);
   CreateAsynEventWithDSMap(resultMap, 63);
+  enable_dialog_creation = true;
 }
 
 void show_error_threaded(char *str, double abort, unsigned id) {
+  if (!enable_dialog_creation) return;
+  enable_dialog_creation = false;
   double result = show_error(str, abort);
   int resultMap = CreateDsMap(0);
   DsMapAddDouble(resultMap, (char *)"id", id);
   DsMapAddDouble(resultMap, (char *)"status", result);
   CreateAsynEventWithDSMap(resultMap, 63);
+  enable_dialog_creation = true;
 }
 
 void get_string_threaded(char *str, char *def, unsigned id) {
+  if (!enable_dialog_creation) return;
+  enable_dialog_creation = false;
   char *result = get_string(str, def);
   int resultMap = CreateDsMap(0);
   DsMapAddDouble(resultMap, (char *)"id", id);
   DsMapAddDouble(resultMap, (char *)"status", 1);
   DsMapAddString(resultMap, (char *)"result", result);
   CreateAsynEventWithDSMap(resultMap, 63);
+  enable_dialog_creation = true;
 }
 
 void get_password_threaded(char *str, char *def, unsigned id) {
+  if (!enable_dialog_creation) return;
+  enable_dialog_creation = false;
   char *result = get_password(str, def);
   int resultMap = CreateDsMap(0);
   DsMapAddDouble(resultMap, (char *)"id", id);
   DsMapAddDouble(resultMap, (char *)"status", 1);
   DsMapAddString(resultMap, (char *)"result", result);
   CreateAsynEventWithDSMap(resultMap, 63);
+  enable_dialog_creation = true;
 }
 
 void get_integer_threaded(char *str, double def, unsigned id) {
+  if (!enable_dialog_creation) return;
+  enable_dialog_creation = false;
   double result = get_integer(str, def);
   int resultMap = CreateDsMap(0);
   DsMapAddDouble(resultMap, (char *)"id", id);
   DsMapAddDouble(resultMap, (char *)"status", 1);
   DsMapAddDouble(resultMap, (char *)"value", result);
   CreateAsynEventWithDSMap(resultMap, 63);
+  enable_dialog_creation = true;
 }
 
 void get_passcode_threaded(char *str, double def, unsigned id) {
+  if (!enable_dialog_creation) return;
+  enable_dialog_creation = false;
   double result = get_passcode(str, def);
   int resultMap = CreateDsMap(0);
   DsMapAddDouble(resultMap, (char *)"id", id);
   DsMapAddDouble(resultMap, (char *)"status", 1);
   DsMapAddDouble(resultMap, (char *)"value", result);
   CreateAsynEventWithDSMap(resultMap, 63);
+  enable_dialog_creation = true;
 }
 
 void get_open_filename_threaded(char *filter, char *fname, unsigned id) {
+  if (!enable_dialog_creation) return;
+  enable_dialog_creation = false;
   char *result = get_open_filename(filter, fname);
   int resultMap = CreateDsMap(0);
   DsMapAddDouble(resultMap, (char *)"id", id);
   DsMapAddDouble(resultMap, (char *)"status", 1);
   DsMapAddString(resultMap, (char *)"result", result);
   CreateAsynEventWithDSMap(resultMap, 63);
+  enable_dialog_creation = true;
 }
 
 void get_open_filename_ext_threaded(char *filter, char *fname, char *dir, char *title, unsigned id) {
+  if (!enable_dialog_creation) return;
+  enable_dialog_creation = false;
   char *result = get_open_filename_ext(filter, fname, dir, title);
   int resultMap = CreateDsMap(0);
   DsMapAddDouble(resultMap, (char *)"id", id);
   DsMapAddDouble(resultMap, (char *)"status", 1);
   DsMapAddString(resultMap, (char *)"result", result);
   CreateAsynEventWithDSMap(resultMap, 63);
+  enable_dialog_creation = true;
 }
 
 void get_open_filenames_threaded(char *filter, char *fname, unsigned id) {
+  if (!enable_dialog_creation) return;
+  enable_dialog_creation = false;
   char *result = get_open_filenames(filter, fname);
   int resultMap = CreateDsMap(0);
   DsMapAddDouble(resultMap, (char *)"id", id);
   DsMapAddDouble(resultMap, (char *)"status", 1);
   DsMapAddString(resultMap, (char *)"result", result);
   CreateAsynEventWithDSMap(resultMap, 63);
+  enable_dialog_creation = true;
 }
 
 void get_open_filenames_ext_threaded(char *filter, char *fname, char *dir, char *title, unsigned id) {
+  if (!enable_dialog_creation) return;
+  enable_dialog_creation = false;
   char *result = get_open_filenames_ext(filter, fname, dir, title);
   int resultMap = CreateDsMap(0);
   DsMapAddDouble(resultMap, (char *)"id", id);
   DsMapAddDouble(resultMap, (char *)"status", 1);
   DsMapAddString(resultMap, (char *)"result", result);
   CreateAsynEventWithDSMap(resultMap, 63);
+  enable_dialog_creation = true;
 }
 
 void get_save_filename_threaded(char *filter, char *fname, unsigned id) {
+  if (!enable_dialog_creation) return;
+  enable_dialog_creation = false;
   char *result = get_save_filename(filter, fname);
   int resultMap = CreateDsMap(0);
   DsMapAddDouble(resultMap, (char *)"id", id);
   DsMapAddDouble(resultMap, (char *)"status", 1);
   DsMapAddString(resultMap, (char *)"result", result);
   CreateAsynEventWithDSMap(resultMap, 63);
+  enable_dialog_creation = true;
 }
 
 void get_save_filename_ext_threaded(char *filter, char *fname, char *dir, char *title, unsigned id) {
+  if (!enable_dialog_creation) return;
+  enable_dialog_creation = false;
   char *result = get_save_filename_ext(filter, fname, dir, title);
   int resultMap = CreateDsMap(0);
   DsMapAddDouble(resultMap, (char *)"id", id);
   DsMapAddDouble(resultMap, (char *)"status", 1);
   DsMapAddString(resultMap, (char *)"result", result);
   CreateAsynEventWithDSMap(resultMap, 63);
+  enable_dialog_creation = true;
 }
 
 void get_directory_threaded(char *dname, unsigned id) {
+  if (!enable_dialog_creation) return;
+  enable_dialog_creation = false;
   char *result = get_directory(dname);
   int resultMap = CreateDsMap(0);
   DsMapAddDouble(resultMap, (char *)"id", id);
   DsMapAddDouble(resultMap, (char *)"status", 1);
   DsMapAddString(resultMap, (char *)"result", result);
   CreateAsynEventWithDSMap(resultMap, 63);
+  enable_dialog_creation = true;
 }
 
 void get_directory_alt_threaded(char *capt, char *root, unsigned id) {
+  if (!enable_dialog_creation) return;
+  enable_dialog_creation = false;
   char *result = get_directory_alt(capt, root);
   int resultMap = CreateDsMap(0);
   DsMapAddDouble(resultMap, (char *)"id", id);
   DsMapAddDouble(resultMap, (char *)"status", 1);
   DsMapAddString(resultMap, (char *)"result", result);
   CreateAsynEventWithDSMap(resultMap, 63);
+  enable_dialog_creation = true;
 }
 
 void get_color_threaded(double defcol, unsigned id) {
+  if (!enable_dialog_creation) return;
+  enable_dialog_creation = false;
   double result = get_color(defcol);
   int resultMap = CreateDsMap(0);
   DsMapAddDouble(resultMap, (char *)"id", id);
   DsMapAddDouble(resultMap, (char *)"status", 1);
   DsMapAddDouble(resultMap, (char *)"value", result);
   CreateAsynEventWithDSMap(resultMap, 63);
+  enable_dialog_creation = true;
 }
 
 void get_color_ext_threaded(double defcol, char *title, unsigned id) {
+  if (!enable_dialog_creation) return;
+  enable_dialog_creation = false;
   double result = get_color_ext(defcol, title);
   int resultMap = CreateDsMap(0);
   DsMapAddDouble(resultMap, (char *)"id", id);
   DsMapAddDouble(resultMap, (char *)"status", 1);
   DsMapAddDouble(resultMap, (char *)"value", result);
   CreateAsynEventWithDSMap(resultMap, 63);
+  enable_dialog_creation = true;
 }
 
 } // anonymous namespace
