@@ -95,7 +95,7 @@ namespace dialog_module {
 
     HWND owner_window() {
       win = owner ? (HWND)owner : GetForegroundWindow();
-      win = (long long)win ? win : GetDesktopWindow();
+      win = (unsigned long long)win ? win : GetDesktopWindow();
       return win;
     }
 
