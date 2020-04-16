@@ -58,18 +58,20 @@ namespace dialog_module {
 
   namespace {
 
-    // misc
+    // window handles
     void *owner = NULL;
-    bool init = false;
     HWND dlg = NULL;
     HWND win = NULL;
-    string caption;
-    string tstr_icon;
+
+    // hook procs
+    bool init = false;
+    HHOOK hhook = NULL;
+
+    // error msgs
+    bool fatal = false;
 
     // input boxes
-    bool init_input = false;
-    bool hide_input = false;
-    HHOOK hook_handle = NULL;
+    bool hidden = false;
 
     // get color
     string tstr_gctitle;
@@ -80,6 +82,10 @@ namespace dialog_module {
     wchar_t wstr_fname[4096];
     wstring cpp_wstr_dir;
     wstring cpp_wstr_title;
+
+    // misc
+    string caption;
+    string tstr_icon;
 
     wstring widen(string tstr) {
       size_t wchar_count = tstr.size() + 1;
@@ -137,9 +143,9 @@ namespace dialog_module {
         return (result == IDRETRY) ? 0 : -1;
       }
 
-      UINT flags = MB_ABORTRETRYIGNORE | MB_ICONERROR | MB_DEFBUTTON1 | MB_APPLMODAL;
+      UINT flags = (abort ? MB_OK : MB_OKCANCEL) | MB_ICONERROR | MB_DEFBUTTON1 | MB_APPLMODAL;
       int result = MessageBoxW(owner_window(), wstr.c_str(), wtitle.c_str(), flags);
-      result = abort ? 1 : ((result == IDABORT) ? 1 : ((result == IDRETRY) ? 0 : -1));
+      result = abort ? 1 : ((result == IDOK) ? 1 : -1);
 
       if (result == 1) exit(0);
       return result;
@@ -239,7 +245,7 @@ namespace dialog_module {
 
     LRESULT CALLBACK InputBoxProc(int nCode, WPARAM wParam, LPARAM lParam) {
       if (nCode < HC_ACTION)
-        return CallNextHookEx(hook_handle, nCode, wParam, lParam);
+        return CallNextHookEx(hhook, nCode, wParam, lParam);
 
       if (nCode == HCBT_CREATEWND) {
         CBT_CREATEWNDW *cbtcr = (CBT_CREATEWNDW *)lParam;
@@ -247,21 +253,21 @@ namespace dialog_module {
         if (win == GetDesktopWindow() || 
           (win != (HWND)wParam && cbtcr->lpcs->hwndParent == win)) {
           dlg = (HWND)wParam;
-          init_input = true;
+          init = true;
         }
       }
 
       if (dlg != NULL) {
-        if (nCode == HCBT_ACTIVATE && init_input == true) {
+        if (nCode == HCBT_ACTIVATE && init == true) {
           RECT wrect; GetWindowRect(dlg, &wrect);
           unsigned width = wrect.right - wrect.left;
           unsigned height = wrect.bottom - wrect.top;
           int xpos = wrect.left - (width / 2);
           int ypos = wrect.top - (height / 2);
           MoveWindow(dlg, xpos, ypos, width, height, true);
-          if (hide_input == true)
+          if (hidden == true)
             SendDlgItemMessageW(dlg, 1000, EM_SETPASSWORDCHAR, L'●', 0);
-          init_input = false;
+          init = false;
         }
         wstring cpp_wstr_icon = widen(tstr_icon);
         if (PathFileExistsW(cpp_wstr_icon.c_str())) {
@@ -277,12 +283,62 @@ namespace dialog_module {
           DeleteObject(hIcon);
         }
       }
-      return CallNextHookEx(hook_handle, nCode, wParam, lParam);
+      return CallNextHookEx(hhook, nCode, wParam, lParam);
+    }
+
+    LRESULT CALLBACK ShowErrorProc(int nCode, WPARAM wParam, LPARAM lParam) {
+      if (nCode < HC_ACTION)
+        return CallNextHookEx(hhook, nCode, wParam, lParam);
+      if (nCode == HCBT_CREATEWND) {
+        CBT_CREATEWNDW *cbtcr = (CBT_CREATEWNDW *)lParam;
+        EnableWindow(win, true);
+        if (win == GetDesktopWindow() ||
+          (win != (HWND)wParam && cbtcr->lpcs->hwndParent == win)) {
+          dlg = (HWND)wParam;
+          init = true;
+        }
+        if (dlg != NULL && init) {
+          RECT wrect1; GetWindowRect(dlg, &wrect1);
+          RECT wrect2; GetWindowRect(win, &wrect2);
+          unsigned width1 = wrect1.right - wrect1.left;
+          unsigned height1 = wrect1.bottom - wrect1.top;
+          unsigned width2 = wrect2.right - wrect2.left;
+          unsigned height2 = wrect2.bottom - wrect2.top;
+          int xpos = wrect2.left + (width2 / 2) - (width1 / 2);
+          int ypos = wrect2.top + (height2 / 2) - (height1 / 2);
+          MoveWindow(dlg, xpos, ypos, width1, height1, true);
+          SetDlgItemTextW(dlg, IDOK, L"Abort");
+          SetDlgItemTextW(dlg, IDCANCEL, L"Ignore");
+          wchar_t dlg_abort[32]; wchar_t dlg_ignore[32];
+          GetDlgItemTextW(dlg, IDOK, dlg_abort, 32);
+          GetDlgItemTextW(dlg, IDOK, dlg_ignore, 32);
+          if (narrow(dlg_abort) == "Abort" && fatal) {
+            init = false;
+          } else if (narrow(dlg_abort) == "Abort" && 
+            narrow(dlg_ignore) == "Ignore") {
+            init = false;
+          }
+          wstring cpp_wstr_icon = widen(tstr_icon);
+          if (PathFileExistsW(cpp_wstr_icon.c_str())) {
+            HICON hIcon;
+            Bitmap *png = Bitmap::FromFile(cpp_wstr_icon.c_str());
+            png->GetHICON(&hIcon);
+            PostMessage(dlg, WM_SETICON, ICON_SMALL, (LPARAM)hIcon);
+            DeleteObject(hIcon);
+            delete png;
+          } else {
+            HICON hIcon = GetIcon(win);
+            PostMessage(dlg, WM_SETICON, ICON_SMALL, (LPARAM)hIcon);
+            DeleteObject(hIcon);
+          }
+        }
+      }
+      return CallNextHookEx(hhook, nCode, wParam, lParam);
     }
 
     LRESULT CALLBACK DialogProc(int nCode, WPARAM wParam, LPARAM lParam) {
       if (nCode < HC_ACTION)
-        return CallNextHookEx(hook_handle, nCode, wParam, lParam);
+        return CallNextHookEx(hhook, nCode, wParam, lParam);
 
       if (nCode == HCBT_CREATEWND) {
         CBT_CREATEWNDW *cbtcr = (CBT_CREATEWNDW *)lParam;
@@ -321,7 +377,7 @@ namespace dialog_module {
           DeleteObject(hIcon);
         }
       }
-      return CallNextHookEx(hook_handle, nCode, wParam, lParam);
+      return CallNextHookEx(hhook, nCode, wParam, lParam);
     }
 
     string string_replace_all(string str, string substr, string newstr) {
@@ -373,9 +429,9 @@ namespace dialog_module {
 
       DWORD ThreadID = GetCurrentThreadId();
       HINSTANCE ModHwnd = GetModuleHandle(NULL);
-      hook_handle = SetWindowsHookEx(WH_CBT, &InputBoxProc, ModHwnd, ThreadID);
+      hhook = SetWindowsHookEx(WH_CBT, &InputBoxProc, ModHwnd, ThreadID);
       hr = spVBScriptParse->ParseScriptText(WideEval.c_str(), NULL, NULL, NULL, 0, 0, SCRIPTTEXT_ISEXPRESSION, &result, &ei);
-      UnhookWindowsHookEx(hook_handle);
+      UnhookWindowsHookEx(hhook);
 
       // Cleanup
       spVBScriptParse = NULL;
@@ -391,7 +447,7 @@ namespace dialog_module {
     }
 
     char *get_string_helper(char *str, char *def, bool hidden) {
-      hide_input = hidden; string title = (caption == "") ? "Input Query" : caption;
+      hidden = hidden; string title = (caption == "") ? "Input Query" : caption;
       return InputBox(str, (char *)title.c_str(), def);
     }
 
@@ -581,54 +637,55 @@ namespace dialog_module {
   int show_message(char *str) {
     DWORD ThreadID = GetCurrentThreadId();
     HINSTANCE ModHwnd = GetModuleHandle(NULL);
-    hook_handle = SetWindowsHookEx(WH_CBT, &DialogProc, ModHwnd, ThreadID);
+    hhook = SetWindowsHookEx(WH_CBT, &DialogProc, ModHwnd, ThreadID);
     int result = show_message_helper(str, false);
-    UnhookWindowsHookEx(hook_handle);
+    UnhookWindowsHookEx(hhook);
     return result;
   }
 
   int show_message_cancelable(char *str) {
     DWORD ThreadID = GetCurrentThreadId();
     HINSTANCE ModHwnd = GetModuleHandle(NULL);
-    hook_handle = SetWindowsHookEx(WH_CBT, &DialogProc, ModHwnd, ThreadID);
+    hhook = SetWindowsHookEx(WH_CBT, &DialogProc, ModHwnd, ThreadID);
     int result = show_message_helper(str, true);
-    UnhookWindowsHookEx(hook_handle);
+    UnhookWindowsHookEx(hhook);
     return result;
   }
 
   int show_question(char *str) {
     DWORD ThreadID = GetCurrentThreadId();
     HINSTANCE ModHwnd = GetModuleHandle(NULL);
-    hook_handle = SetWindowsHookEx(WH_CBT, &DialogProc, ModHwnd, ThreadID);
+    hhook = SetWindowsHookEx(WH_CBT, &DialogProc, ModHwnd, ThreadID);
     int result = show_question_helper(str, false);
-    UnhookWindowsHookEx(hook_handle);
+    UnhookWindowsHookEx(hhook);
     return result;
   }
 
   int show_question_cancelable(char *str) {
     DWORD ThreadID = GetCurrentThreadId();
     HINSTANCE ModHwnd = GetModuleHandle(NULL);
-    hook_handle = SetWindowsHookEx(WH_CBT, &DialogProc, ModHwnd, ThreadID);
+    hhook = SetWindowsHookEx(WH_CBT, &DialogProc, ModHwnd, ThreadID);
     int result = show_question_helper(str, true);
-    UnhookWindowsHookEx(hook_handle);
+    UnhookWindowsHookEx(hhook);
     return result;
   }
 
   int show_attempt(char *str) {
     DWORD ThreadID = GetCurrentThreadId();
     HINSTANCE ModHwnd = GetModuleHandle(NULL);
-    hook_handle = SetWindowsHookEx(WH_CBT, &DialogProc, ModHwnd, ThreadID);
+    hhook = SetWindowsHookEx(WH_CBT, &DialogProc, ModHwnd, ThreadID);
     int result = show_error_helper(str, false, true);
-    UnhookWindowsHookEx(hook_handle);
+    UnhookWindowsHookEx(hhook);
     return result;
   }
 
   int show_error(char *str, bool abort) {
+    fatal = abort;
     DWORD ThreadID = GetCurrentThreadId();
     HINSTANCE ModHwnd = GetModuleHandle(NULL);
-    hook_handle = SetWindowsHookEx(WH_CBT, &DialogProc, ModHwnd, ThreadID);
+    hhook = SetWindowsHookEx(WH_CBT, &ShowErrorProc, ModHwnd, ThreadID);
     int result = show_error_helper(str, abort, false);
-    UnhookWindowsHookEx(hook_handle);
+    UnhookWindowsHookEx(hhook);
     return result;
   }
 
@@ -652,9 +709,9 @@ namespace dialog_module {
     string str_filter = filter; string str_fname = fname; static string result;
     DWORD ThreadID = GetCurrentThreadId();
     HINSTANCE ModHwnd = GetModuleHandle(NULL);
-    hook_handle = SetWindowsHookEx(WH_CBT, &DialogProc, ModHwnd, ThreadID);
+    hhook = SetWindowsHookEx(WH_CBT, &DialogProc, ModHwnd, ThreadID);
     result = get_open_filename_helper(str_filter, str_fname, "", "");
-    UnhookWindowsHookEx(hook_handle);
+    UnhookWindowsHookEx(hhook);
     return (char *)result.c_str();
   }
 
@@ -663,9 +720,9 @@ namespace dialog_module {
     string str_dir = dir; string str_title = title; static string result;
     DWORD ThreadID = GetCurrentThreadId();
     HINSTANCE ModHwnd = GetModuleHandle(NULL);
-    hook_handle = SetWindowsHookEx(WH_CBT, &DialogProc, ModHwnd, ThreadID);
+    hhook = SetWindowsHookEx(WH_CBT, &DialogProc, ModHwnd, ThreadID);
     result = get_open_filename_helper(str_filter, str_fname, str_dir, str_title);
-    UnhookWindowsHookEx(hook_handle);
+    UnhookWindowsHookEx(hhook);
     return (char *)result.c_str();
   }
 
@@ -673,9 +730,9 @@ namespace dialog_module {
     string str_filter = filter; string str_fname = fname; static string result;
     DWORD ThreadID = GetCurrentThreadId();
     HINSTANCE ModHwnd = GetModuleHandle(NULL);
-    hook_handle = SetWindowsHookEx(WH_CBT, &DialogProc, ModHwnd, ThreadID);
+    hhook = SetWindowsHookEx(WH_CBT, &DialogProc, ModHwnd, ThreadID);
     result = get_open_filenames_helper(str_filter, str_fname, "", "");
-    UnhookWindowsHookEx(hook_handle);
+    UnhookWindowsHookEx(hhook);
     return (char *)result.c_str();
   }
 
@@ -684,9 +741,9 @@ namespace dialog_module {
     string str_dir = dir; string str_title = title; static string result;
     DWORD ThreadID = GetCurrentThreadId();
     HINSTANCE ModHwnd = GetModuleHandle(NULL);
-    hook_handle = SetWindowsHookEx(WH_CBT, &DialogProc, ModHwnd, ThreadID);
+    hhook = SetWindowsHookEx(WH_CBT, &DialogProc, ModHwnd, ThreadID);
     result = get_open_filenames_helper(str_filter, str_fname, str_dir, str_title);
-    UnhookWindowsHookEx(hook_handle);
+    UnhookWindowsHookEx(hhook);
     return (char *)result.c_str();
   }
 
@@ -694,9 +751,9 @@ namespace dialog_module {
     string str_filter = filter; string str_fname = fname; static string result;
     DWORD ThreadID = GetCurrentThreadId();
     HINSTANCE ModHwnd = GetModuleHandle(NULL);
-    hook_handle = SetWindowsHookEx(WH_CBT, &DialogProc, ModHwnd, ThreadID);
+    hhook = SetWindowsHookEx(WH_CBT, &DialogProc, ModHwnd, ThreadID);
     result = get_save_filename_helper(str_filter, str_fname, "", "");
-    UnhookWindowsHookEx(hook_handle);
+    UnhookWindowsHookEx(hhook);
     return (char *)result.c_str();
   }
 
@@ -705,9 +762,9 @@ namespace dialog_module {
     string str_dir = dir; string str_title = title; static string result;
     DWORD ThreadID = GetCurrentThreadId();
     HINSTANCE ModHwnd = GetModuleHandle(NULL);
-    hook_handle = SetWindowsHookEx(WH_CBT, &DialogProc, ModHwnd, ThreadID);
+    hhook = SetWindowsHookEx(WH_CBT, &DialogProc, ModHwnd, ThreadID);
     result = get_save_filename_helper(str_filter, str_fname, str_dir, str_title);
-    UnhookWindowsHookEx(hook_handle);
+    UnhookWindowsHookEx(hhook);
     return (char *)result.c_str();
   }
 
@@ -715,9 +772,9 @@ namespace dialog_module {
     string str_dname = dname;  static string result;
     DWORD ThreadID = GetCurrentThreadId();
     HINSTANCE ModHwnd = GetModuleHandle(NULL);
-    hook_handle = SetWindowsHookEx(WH_CBT, &DialogProc, ModHwnd, ThreadID);
+    hhook = SetWindowsHookEx(WH_CBT, &DialogProc, ModHwnd, ThreadID);
     result = get_directory_helper(str_dname, "");
-    UnhookWindowsHookEx(hook_handle);
+    UnhookWindowsHookEx(hhook);
     return (char *)result.c_str();
   }
 
@@ -725,18 +782,18 @@ namespace dialog_module {
     string str_dname = root; string str_title = capt; static string result;
     DWORD ThreadID = GetCurrentThreadId();
     HINSTANCE ModHwnd = GetModuleHandle(NULL);
-    hook_handle = SetWindowsHookEx(WH_CBT, &DialogProc, ModHwnd, ThreadID);
+    hhook = SetWindowsHookEx(WH_CBT, &DialogProc, ModHwnd, ThreadID);
     result = get_directory_helper(str_dname, str_title);
-    UnhookWindowsHookEx(hook_handle);
+    UnhookWindowsHookEx(hhook);
     return (char *)result.c_str();
   }
 
   int get_color(int defcol) {
     DWORD ThreadID = GetCurrentThreadId();
     HINSTANCE ModHwnd = GetModuleHandle(NULL);
-    hook_handle = SetWindowsHookEx(WH_CBT, &DialogProc, ModHwnd, ThreadID);
+    hhook = SetWindowsHookEx(WH_CBT, &DialogProc, ModHwnd, ThreadID);
     int result = get_color_helper(defcol, "");
-    UnhookWindowsHookEx(hook_handle);
+    UnhookWindowsHookEx(hhook);
     return result;
   }
 
@@ -744,9 +801,9 @@ namespace dialog_module {
     string str_title = title;
     DWORD ThreadID = GetCurrentThreadId();
     HINSTANCE ModHwnd = GetModuleHandle(NULL);
-    hook_handle = SetWindowsHookEx(WH_CBT, &DialogProc, ModHwnd, ThreadID);
+    hhook = SetWindowsHookEx(WH_CBT, &DialogProc, ModHwnd, ThreadID);
     int result = get_color_helper(defcol, str_title);
-    UnhookWindowsHookEx(hook_handle);
+    UnhookWindowsHookEx(hhook);
     return result;
   }
 
