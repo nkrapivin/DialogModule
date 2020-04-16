@@ -275,49 +275,7 @@ pid_t modify_dialog(pid_t ppid) {
   
     if (file_exists(current_icon) && filename_ext(current_icon) == ".png")
       XSetIcon(display, window, current_icon.c_str());
- 
-    if (dialog_position) {
-      int xpos = dialog_xpos;
-      int ypos = dialog_ypos;
-      XMoveWindow(display, window, xpos, ypos);
-    } else if (!dialog_size) {
-      Window child, root = DefaultRootWindow(display); 
-      int x0, y0, x1, y1, x2, y2; unsigned w1, h1, w2, h2, border_width, depth;
-      XTranslateCoordinates(display, parent, root, 0, 0, &x0, &y0, &child);
-      XGetGeometry(display, parent, &root, &x2, &y2, &w2, &h2, &border_width, &depth);
-      XGetGeometry(display, window, &root, &x1, &y1, &w1, &h1, &border_width, &depth);
-      int xpos = (x0 - x2) + ((w2 - w1) / 2);
-      int ypos = (y0 - y2) + ((h2 - h1) / 2);
-      XMoveWindow(display, window, xpos, ypos);
-    }
- 
-    if (dialog_size) {
-      XSizeHints *hints = XAllocSizeHints(); long supplied;
-      XGetWMNormalHints(display, window, hints, &supplied);
 
-      unsigned w1 = dialog_width;
-      unsigned h1 = dialog_height;
-
-      if (hints->min_width != 0 && w1 < hints->min_width) w1 = hints->min_width;
-      if (hints->max_width != 0 && w1 > hints->max_width) w1 = hints->max_width;
-      if (hints->min_height != 0 && h1 < hints->min_height) h1 = hints->min_height;
-      if (hints->max_height != 0 && h1 > hints->max_height) h1 = hints->max_height;
-
-      XResizeWindow(display, window, w1, h1);
-   
-      if (!dialog_position) {
-        Window child, root = DefaultRootWindow(display);
-        int x0, y0, x1, y1, x2, y2; unsigned w2, h2, border_width, depth;
-        XTranslateCoordinates(display, parent, root, 0, 0, &x0, &y0, &child);
-        XGetGeometry(display, parent, &root, &x2, &y2, &w2, &h2, &border_width, &depth);
-        XGetGeometry(display, window, &root, &x1, &y1, &w1, &h1, &border_width, &depth);
-        int xpos = (x0 - x2) + ((w2 - w1) / 2);
-        int ypos = (y0 - y2) + ((h2 - h1) / 2);
-        XMoveWindow(display, window, xpos, ypos);
-      }
-
-      XFree(hints);
-    }
     XCloseDisplay(display);
     exit(0);
   }
@@ -342,9 +300,9 @@ string shellscript_evaluate(string command) {
   kill(pid, SIGTERM);
   bool died = false;
 
-  for (unsigned i = 0; !died && i < 5; i++) {
+  for (unsigned i = 0; !died && i < 4; i++) {
     int status; 
-    std::this_thread::sleep_for(std::chrono::seconds(1));
+    std::this_thread::sleep_for(std::chrono::milliseconds(250));
     if (waitpid(pid, &status, WNOHANG) == pid) died = true;
   }
 
@@ -603,24 +561,38 @@ int show_error(char *str, bool abort) {
   XCloseDisplay(display);
 
   if (dm_dialogengine == dm_zenity) {
-    str_echo = abort ? "echo 1" :
-      "if [ $? = 0 ] ;then echo 1;elif [ $ans = \"Ignore\" ] ;then echo -1;else echo 0;fi";
+    str_echo = abort ? "echo 1" : "if [ $? = 0 ] ;then echo 1;else echo -1;fi";
 
-    str_command = string("ans=$(zenity ") +
-    string("--attach=$(sleep .01;") + window + string(") ") +
-    string("--question --ok-label=Abort --cancel-label=Retry --extra-button=Ignore ") +
-    string("--title=\"") + str_title + string("\" --no-wrap --text=\"") +
-    add_escaping(str, false, "") + string("\" --icon-name=dialog-error --window-icon=dialog-error);") + str_echo;
+    if (abort) {
+      str_command = string("ans=$(zenity ") +
+      string("--attach=$(sleep .01;") + window + string(") ") +
+      string("--info --ok-label=Abort ") +
+      string("--title=\"") + str_title + string("\" --no-wrap --text=\"") +
+      add_escaping(str, false, "") + string("\" --icon-name=dialog-error --window-icon=dialog-error);") + str_echo;
+    } else {
+      str_command = string("ans=$(zenity ") +
+      string("--attach=$(sleep .01;") + window + string(") ") +
+      string("--question --ok-label=Abort --cancel-label=Ignore ") +
+      string("--title=\"") + str_title + string("\" --no-wrap --text=\"") +
+      add_escaping(str, false, "") + string("\" --icon-name=dialog-error --window-icon=dialog-error);") + str_echo;
+    }
   }
   else if (dm_dialogengine == dm_kdialog) {
-    str_echo = abort ? "echo 1" :
-      "x=$? ;if [ $x = 0 ] ;then echo 1;elif [ $x = 1 ] ;then echo 0;elif [ $x = 2 ] ;then echo -1;fi";
+    str_echo = abort ? "echo 1" : "x=$? ;if [ $x = 0 ] ;then echo 1;elif [ $x = 1 ] ;then echo -1;fi";
 
-    str_command = string("kdialog ") +
-    string("--attach=") + window + string(" ") +
-    string("--warningyesnocancel \"") + add_escaping(str, false, "") + string("\" ") +
-    string("--yes-label Abort --no-label Retry --cancel-label Ignore ") +
-    string("--title \"") + str_title + string("\" --icon dialog-warning;") + str_echo;
+    if (abort) {
+      str_command = string("kdialog ") +
+      string("--attach=") + window + string(" ") +
+      string("--sorry \"") + add_escaping(str, false, "") + string("\" ") +
+      string("--ok-label Abort ") +
+      string("--title \"") + str_title + string("\" --icon dialog-warning;") + str_echo;
+    } else {
+      str_command = string("kdialog ") +
+      string("--attach=") + window + string(" ") +
+      string("--warningyesno \"") + add_escaping(str, false, "") + string("\" ") +
+      string("--yes-label Abort --no-label Ignore ") +
+      string("--title \"") + str_title + string("\" --icon dialog-warning;") + str_echo;
+    }
   }
 
   string str_result = shellscript_evaluate(str_command);
