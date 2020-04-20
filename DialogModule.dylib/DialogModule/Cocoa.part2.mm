@@ -201,8 +201,7 @@ int cocoa_show_error(const char *str, bool _abort, const char *icon, const char 
 
   [alert setInformativeText:myStr];
   [alert addButtonWithTitle:@"Abort"];
-  [alert addButtonWithTitle:@"Retry"];
-  [alert addButtonWithTitle:@"Ignore"];
+  if (!_abort) [alert addButtonWithTitle:@"Ignore"];
   [alert setAlertStyle:2];
 
   NSModalResponse responseTag = [alert runModal];
@@ -211,9 +210,6 @@ int cocoa_show_error(const char *str, bool _abort, const char *icon, const char 
 
   if (responseTag == NSAlertFirstButtonReturn || _abort)
     return 1;
-
-  if (responseTag == NSAlertSecondButtonReturn)
-    return 0;
 
   return -1;
 }
