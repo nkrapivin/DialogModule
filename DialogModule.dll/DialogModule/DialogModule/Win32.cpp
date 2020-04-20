@@ -311,7 +311,7 @@ namespace dialog_module {
           SetDlgItemTextW(dlg, IDCANCEL, L"Ignore");
           wchar_t dlg_abort[32]; wchar_t dlg_ignore[32];
           GetDlgItemTextW(dlg, IDOK, dlg_abort, 32);
-          GetDlgItemTextW(dlg, IDOK, dlg_ignore, 32);
+          GetDlgItemTextW(dlg, IDCANCEL, dlg_ignore, 32);
           if (narrow(dlg_abort) == "Abort" && fatal) {
             init = false;
           } else if (narrow(dlg_abort) == "Abort" && 
