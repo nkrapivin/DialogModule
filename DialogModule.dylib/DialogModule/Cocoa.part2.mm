@@ -62,7 +62,7 @@ const char *evaluate_shell(const char *command) {
   pclose(file);
 
   if ([result hasSuffix:@"\n"])
-    [result substringToIndex:[result length] - 1];
+    result = [result substringToIndex:[result length] - 1];
   
   return [result UTF8String];
 }
