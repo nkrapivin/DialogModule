@@ -446,8 +446,8 @@ namespace dialog_module {
       return (char *)strResult.c_str();
     }
 
-    char *get_string_helper(char *str, char *def, bool hidden) {
-      hidden = hidden; string title = (caption == "") ? "Input Query" : caption;
+    char *get_string_helper(char *str, char *def, bool hide) {
+      hidden = hide; string title = (caption == "") ? "Input Query" : caption;
       return InputBox(str, (char *)title.c_str(), def);
     }
 
@@ -460,7 +460,7 @@ namespace dialog_module {
       return strnumb;
     }
 
-    double get_integer_helper(char *str, double def, bool hidden) {
+    double get_integer_helper(char *str, double def, bool hide) {
       double DIGITS_MIN = -999999999999999; 
       double DIGITS_MAX = 999999999999999;
 
@@ -468,7 +468,7 @@ namespace dialog_module {
       if (def > DIGITS_MAX) def = DIGITS_MAX;
 
       string cpp_tdef = remove_trailing_zeros(def);
-      double result = strtod(get_string_helper(str, (char *)cpp_tdef.c_str(), hidden), NULL);
+      double result = strtod(get_string_helper(str, (char *)cpp_tdef.c_str(), hide), NULL);
 
       if (result < DIGITS_MIN) result = DIGITS_MIN; 
       if (result > DIGITS_MAX) result = DIGITS_MAX;
