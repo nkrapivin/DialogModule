@@ -234,6 +234,7 @@ string filename_ext(string fname) {
 }
 
 bool WaitForChildPidOfPidToExist(pid_t pid, pid_t ppid) {
+  if (pid == ppid) return false;
   while (pid != ppid) {
     if (pid <= 1) break;
     #ifdef __linux__ // Linux
