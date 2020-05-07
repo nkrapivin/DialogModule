@@ -54,5 +54,7 @@ namespace dialog_module {
   void widget_set_icon(char *icon);
   char *widget_get_system();
   void widget_set_system(char *sys);
-
+  void widget_set_button_name(double type, char *name);
+  char *widget_get_button_name(double type);
+  
 } // namespace dialog_module

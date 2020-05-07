@@ -73,6 +73,18 @@ void *owner = NULL;
 string caption;
 string current_icon;
 
+enum BUTTON_TYPES {
+  BUTTON_ABORT,
+  BUTTON_IGNORE,
+  BUTTON_OK,
+  BUTTON_CANCEL,
+  BUTTON_YES,
+  BUTTON_NO,
+  BUTTON_RETRY
+};
+int const btn_array_len = 7; // number of items in BUTTON_TYPES enum.
+string btn_array[btn_array_len] = { "Abort", "Ignore", "OK", "Cancel", "Yes", "No", "Retry" }; // default button names.
+
 bool message_cancel  = false;
 bool question_cancel = false;
 
@@ -421,11 +433,11 @@ int show_message_helperfunc(char *str) {
 
   if (dm_dialogengine == dm_zenity) {
     string str_icon = "\" --icon-name=dialog-information);";
-    str_cancel = "--info --ok-label=OK ";
+    str_cancel = "--info --ok-label=" + btn_array[BUTTON_OK] + " ";
 
     if (message_cancel) {
       str_icon = "\" --icon-name=dialog-question);";
-      str_cancel = "--question --ok-label=OK --cancel-label=Cancel ";
+      str_cancel = "--question --ok-label=" + btn_array[BUTTON_OK] + " --cancel-label=" + btn_array[BUTTON_CANCEL] + " ";
     }
 
     str_command = string("ans=$(zenity ") +
@@ -437,7 +449,7 @@ int show_message_helperfunc(char *str) {
     str_cancel = string("--msgbox \"") + add_escaping(str, false, "") + string("\" --icon dialog-information ");
 
     if (message_cancel)
-      str_cancel = string("--yesno \"") + add_escaping(str, false, "") + string("\" --yes-label Ok --no-label Cancel --icon dialog-question ");
+      str_cancel = string("--yesno \"") + add_escaping(str, false, "") + string("\" --yes-label " + btn_array[BUTTON_OK] + " --no-label " + btn_array[BUTTON_CANCEL] + " --icon dialog-question ");
 
     str_command = string("kdialog ") +
     string("--attach=") + window + string(" ") +
@@ -466,13 +478,13 @@ int show_question_helperfunc(char *str) {
 
   if (dm_dialogengine == dm_zenity) {
     if (question_cancel)
-      str_cancel = "--extra-button=Cancel ";
+      str_cancel = "--extra-button=" + btn_array[BUTTON_CANCEL] + " ";
 
     str_command = string("ans=$(zenity ") +
     string("--attach=$(sleep .01;") + window + string(") ") +
-    string("--question --ok-label=Yes --cancel-label=No ") + str_cancel +  string("--title=\"") +
+    string("--question --ok-label=" + btn_array[BUTTON_YES] + " --cancel-label=" + btn_array[BUTTON_NO] + " ") + str_cancel +  string("--title=\"") +
     str_title + string("\" --no-wrap --text=\"") + add_escaping(str, false, "") +
-    string("\" --icon-name=dialog-question);if [ $? = 0 ] ;then echo 1;elif [ $ans = \"Cancel\" ] ;then echo -1;else echo 0;fi");
+    string("\" --icon-name=dialog-question);if [ $? = 0 ] ;then echo 1;elif [ $ans = \"" + btn_array[BUTTON_CANCEL] + "\" ] ;then echo -1;else echo 0;fi");
   }
   else if (dm_dialogengine == dm_kdialog) {
     if (question_cancel)
@@ -481,7 +493,7 @@ int show_question_helperfunc(char *str) {
     str_command = string("kdialog ") +
     string("--attach=") + window + string(" ") +
     string("--yesno") + str_cancel + string(" \"") + add_escaping(str, false, "") + string("\" ") +
-    string("--yes-label Yes --no-label No ") + string("--title \"") + str_title + string("\" --icon dialog-question;") +
+    string("--yes-label " + btn_array[BUTTON_YES] + " --no-label " + btn_array[BUTTON_NO] + " ") + string("--title \"") + str_title + string("\" --icon dialog-question;") +
     string("x=$? ;if [ $x = 0 ] ;then echo 1;elif [ $x = 1 ] ;then echo 0;elif [ $x = 2 ] ;then echo -1;fi");
   }
 
@@ -529,7 +541,7 @@ int show_attempt(char *str) {
   if (dm_dialogengine == dm_zenity) {
     str_command = string("ans=$(zenity ") +
     string("--attach=$(sleep .01;") + window + string(") ") +
-    string("--question --ok-label=Retry --cancel-label=Cancel ") +  string("--title=\"") +
+    string("--question --ok-label=" + btn_array[BUTTON_RETRY] + " --cancel-label=" + btn_array[BUTTON_CANCEL] + " ") +  string("--title=\"") +
     str_title + string("\" --no-wrap --text=\"") + add_escaping(str, false, "") +
     string("\" --icon-name=dialog-error --window-icon=dialog-error);if [ $? = 0 ] ;then echo 0;else echo -1;fi");
   }
@@ -537,7 +549,7 @@ int show_attempt(char *str) {
     str_command = string("kdialog ") +
     string("--attach=") + window + string(" ") +
     string("--warningyesno") + string(" \"") + add_escaping(str, false, "") + string("\" ") +
-    string("--yes-label Retry --no-label Cancel ") + string("--title \"") +
+    string("--yes-label " + btn_array[BUTTON_RETRY] + " --no-label " + btn_array[BUTTON_CANCEL] + " ") + string("--title \"") +
     str_title + string("\" --icon dialog-warning;") + string("x=$? ;if [ $x = 0 ] ;then echo 0;else echo -1;fi");
   }
 
@@ -567,13 +579,13 @@ int show_error(char *str, bool abort) {
     if (abort) {
       str_command = string("ans=$(zenity ") +
       string("--attach=$(sleep .01;") + window + string(") ") +
-      string("--info --ok-label=Abort ") +
+      string("--info --ok-label=" + btn_array[BUTTON_ABORT] + " ") +
       string("--title=\"") + str_title + string("\" --no-wrap --text=\"") +
       add_escaping(str, false, "") + string("\" --icon-name=dialog-error --window-icon=dialog-error);") + str_echo;
     } else {
       str_command = string("ans=$(zenity ") +
       string("--attach=$(sleep .01;") + window + string(") ") +
-      string("--question --ok-label=Abort --cancel-label=Ignore ") +
+      string("--question --ok-label=" + btn_array[BUTTON_ABORT] + " --cancel-label=" + btn_array[BUTTON_IGNORE] + " ") +
       string("--title=\"") + str_title + string("\" --no-wrap --text=\"") +
       add_escaping(str, false, "") + string("\" --icon-name=dialog-error --window-icon=dialog-error);") + str_echo;
     }
@@ -585,13 +597,13 @@ int show_error(char *str, bool abort) {
       str_command = string("kdialog ") +
       string("--attach=") + window + string(" ") +
       string("--sorry \"") + add_escaping(str, false, "") + string("\" ") +
-      string("--ok-label Abort ") +
+      string("--ok-label " + btn_array[BUTTON_ABORT] + " ") +
       string("--title \"") + str_title + string("\" --icon dialog-warning;") + str_echo;
     } else {
       str_command = string("kdialog ") +
       string("--attach=") + window + string(" ") +
       string("--warningyesno \"") + add_escaping(str, false, "") + string("\" ") +
-      string("--yes-label Abort --no-label Ignore ") +
+      string("--yes-label " + btn_array[BUTTON_ABORT] + " --no-label " + btn_array[BUTTON_IGNORE] + " ") +
       string("--title \"") + str_title + string("\" --icon dialog-warning;") + str_echo;
     }
   }
@@ -1263,6 +1275,16 @@ void widget_set_system(char *sys) {
 
   if (str_sys == "KDialog")
     dm_dialogengine = dm_kdialog;
+}
+
+void widget_set_button_name(double type, char *name) {
+  string str_name = name;
+  
+  btn_array[(int)type] = str_name;
+}
+
+char *widget_get_button_name(double type) {
+  return strdup(btn_array[(int)type].c_str());
 }
 
 } // namepace dialog_module

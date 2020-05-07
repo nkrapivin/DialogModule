@@ -82,6 +82,8 @@ EXPORTED_FUNCTION char *widget_get_icon();
 EXPORTED_FUNCTION double widget_set_icon(char *icon);
 EXPORTED_FUNCTION char *widget_get_system();
 EXPORTED_FUNCTION double widget_set_system(char *sys);
+EXPORTED_FUNCTION char *widget_get_button_name(double type);
+EXPORTED_FUNCTION double widget_set_button_name(double type, char *name);
 EXPORTED_FUNCTION void RegisterCallbacks(char *arg1, char *arg2, char *arg3, char *arg4);
 
 namespace {
@@ -616,6 +618,15 @@ char *widget_get_system() {
 
 double widget_set_system(char *sys) {
   dialog_module::widget_set_system(sys);
+  return 0;
+}
+
+char *widget_get_button_name(double type) {
+  return (char *)""; // This feature is Zenity/KDialog only.
+}
+
+double widget_set_button_name(double type, char *name) {
+  // This feature is Zenity/KDialog only.
   return 0;
 }
 
