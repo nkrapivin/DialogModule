@@ -1284,7 +1284,7 @@ void widget_set_button_name(double type, char *name) {
 }
 
 char *widget_get_button_name(double type) {
-  return strdup(btn_array[(int)type].c_str());
+  return (char *)btn_array[(int)type].c_str();
 }
 
 } // namepace dialog_module
