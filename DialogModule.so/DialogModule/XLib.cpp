@@ -446,8 +446,7 @@ int show_message_helperfunc(char *str) {
     add_escaping(str, false, "") + str_icon + str_echo;
   }
   else if (dm_dialogengine == dm_kdialog) {
-    str_cancel = string("--msgbox \"") + add_escaping(str, false, "") + string("\" --ok-label \"" + add_escaping(btn_array[BUTTON_OK] +
-    "' --icon dialog-information ");
+    str_cancel = string("--msgbox \"") + add_escaping(str, false, "") + string("\" --ok-label \"" + add_escaping(btn_array[BUTTON_OK] + "\" --icon dialog-information ");
 
     if (message_cancel)
       str_cancel = string("--yesno \"") + add_escaping(str, false, "") + string("\" --yes-label \"" + add_escaping(btn_array[BUTTON_OK] + " --no-label \"" + add_escaping(btn_array[BUTTON_CANCEL], true, "") + "\" --icon dialog-question ");
